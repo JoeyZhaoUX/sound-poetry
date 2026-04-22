@@ -1,0 +1,2644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sound Poetry - Joey Zhao</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@500;700;800&family=DM+Sans:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Noto+Serif+TC:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+/* ─── DESIGN TOKENS ─── */
+:root {
+  /* Landing page: warm editorial palette */
+  --c-bg-warm: #F5F2EB;
+  --c-text: #1A1A1A;
+  --c-text-dim: #5C5C5C;
+  --c-text-muted: #999;
+  --c-accent: #3D5A80;
+  --c-accent-hover: #2C4460;
+  --c-border: #D4D0C8;
+  --c-card: #FFFEF9;
+  --c-tag-bg: #EDEBE5;
+
+  /* Experience (dark canvas) — kept for Three.js */
+  --c-bg: #0A0614;
+  --c-bg-2: #130A24;
+  --c-ink: #1E1035;
+  --c-violet: #8B5CF6;
+  --c-violet-deep: #6D28D9;
+  --c-magenta: #E879F9;
+  --c-amber: #F59E0B;
+  --c-cyan: #22D3EE;
+  --c-white: #F5F3FF;
+
+  /* Experience UI panels — solid, no glass */
+  --panel-bg: rgba(18, 12, 32, 0.92);
+  --panel-border: rgba(255,255,255,0.1);
+
+  --f-display: 'Syne', sans-serif;
+  --f-body: 'DM Sans', sans-serif;
+  --f-mono: 'JetBrains Mono', monospace;
+  --f-poem: 'Cormorant Garamond', serif;
+  --f-zh: 'Noto Serif TC', serif;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--c-bg-warm);
+  overflow: hidden;
+  font-family: var(--f-body);
+  color: var(--c-text);
+  -webkit-font-smoothing: antialiased;
+}
+
+canvas { display: block; }
+
+/* ─── LOADER ─── */
+.loader {
+  position: fixed; inset: 0;
+  background: var(--c-bg-warm);
+  z-index: 200;
+  display: flex; align-items: center; justify-content: center; flex-direction: column;
+  transition: opacity 1s ease, visibility 1s ease;
+}
+.loader.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+.loader-ring {
+  width: 40px; height: 40px;
+  border: 2px solid var(--c-border);
+  border-top-color: var(--c-accent);
+  border-radius: 50%;
+  animation: spin 1.2s linear infinite;
+  margin-bottom: 16px;
+}
+.loader-text {
+  font-family: var(--f-body);
+  font-size: 13px; letter-spacing: 1px;
+  color: var(--c-text-muted);
+}
+
+/* ─── LANDING ───────────────────────────────────────────── */
+.landing {
+  position: fixed; inset: 0;
+  z-index: 100;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--c-bg-warm);
+  transition: opacity 1.2s ease, visibility 1.2s ease;
+  overflow: hidden;
+}
+.landing.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+
+/* Decorative grid lines */
+.landing::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(to right, var(--c-border) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--c-border) 1px, transparent 1px);
+  background-size: 80px 80px;
+  opacity: 0.35;
+  pointer-events: none;
+}
+/* Radial fade over grid */
+.landing::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 70% 70% at 50% 50%, transparent 30%, var(--c-bg-warm) 100%);
+  pointer-events: none;
+}
+
+.landing-content {
+  text-align: center;
+  width: 100%;
+  max-width: 960px;
+  padding: 0 48px;
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Year label */
+.landing-year {
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: 4px;
+  color: var(--c-text-muted);
+  margin-bottom: 32px;
+  animation: fadeSlideUp 0.6s ease-out 0.2s both;
+}
+
+/* Chinese character above title */
+.landing-zh {
+  font-family: var(--f-zh);
+  font-weight: 300;
+  font-size: 13px;
+  letter-spacing: 10px;
+  color: var(--c-text-dim);
+  margin-bottom: 16px;
+  animation: fadeSlideUp 0.6s ease-out 0.4s both;
+}
+
+/* Main title — full width, properly contained */
+.landing-title {
+  font-family: var(--f-display);
+  font-weight: 800;
+  font-size: clamp(56px, 10vw, 112px);
+  letter-spacing: -3px;
+  line-height: 1;
+  color: var(--c-text);
+  margin: 0 0 0 0;
+  white-space: nowrap;
+  animation: fadeSlideUp 0.7s ease-out 0.5s both;
+}
+
+/* Horizontal rule */
+.landing-rule {
+  width: 100%;
+  max-width: 560px;
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--c-border), transparent);
+  margin: 28px auto;
+  animation: fadeSlideUp 0.6s ease-out 0.65s both;
+}
+
+/* Tagline */
+.landing-sub {
+  font-family: var(--f-poem);
+  font-style: italic;
+  font-size: clamp(17px, 1.8vw, 22px);
+  font-weight: 400;
+  color: var(--c-text-dim);
+  margin-bottom: 6px;
+  letter-spacing: 0.3px;
+  animation: fadeSlideUp 0.6s ease-out 0.7s both;
+}
+.landing-zh-sub {
+  font-family: var(--f-zh);
+  font-weight: 300;
+  font-size: 12px;
+  letter-spacing: 4px;
+  color: var(--c-text-muted);
+  margin-bottom: 44px;
+  animation: fadeSlideUp 0.6s ease-out 0.78s both;
+}
+
+/* Feature pills */
+.landing-pills {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 40px;
+  animation: fadeSlideUp 0.6s ease-out 0.85s both;
+}
+.landing-pill {
+  padding: 5px 16px;
+  border: 1px solid var(--c-border);
+  border-radius: 100px;
+  font-family: var(--f-mono);
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--c-text-muted);
+  text-transform: uppercase;
+}
+
+.landing-btn {
+  position: relative;
+  padding: 16px 48px;
+  background: var(--c-text);
+  border: none;
+  color: var(--c-bg-warm);
+  font-family: var(--f-display);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  cursor: pointer;
+  border-radius: 3px;
+  transition: background 0.3s ease, transform 0.2s ease;
+  animation: fadeSlideUp 0.6s ease-out 0.95s both;
+}
+.landing-btn:hover {
+  background: var(--c-accent);
+  transform: translateY(-2px);
+}
+
+/* ─── PERMISSION MODAL ──────────────────────────────────── */
+.permission-modal {
+  position: fixed; inset: 0;
+  z-index: 90;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(10, 6, 20, 0.88);
+  opacity: 0; visibility: hidden;
+  transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+.permission-modal.visible { opacity: 1; visibility: visible; }
+.permission-box {
+  text-align: center;
+  padding: 48px 40px;
+  border: 1px solid var(--panel-border);
+  background: var(--panel-bg);
+  border-radius: 12px;
+  max-width: 440px;
+  box-shadow: 0 16px 48px rgba(0,0,0,0.5);
+}
+.permission-icon {
+  width: 56px; height: 56px;
+  margin: 0 auto 20px;
+  background: var(--c-accent);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px; color: #fff;
+}
+.permission-title {
+  font-family: var(--f-display);
+  font-size: 22px; font-weight: 700;
+  letter-spacing: 0.5px;
+  color: #fff;
+  margin-bottom: 8px;
+}
+.permission-zh {
+  font-family: var(--f-zh);
+  font-size: 13px; letter-spacing: 4px;
+  color: rgba(255, 255, 255, 0.5);
+  margin-bottom: 18px;
+}
+.permission-desc {
+  font-size: 14px; color: rgba(255, 255, 255, 0.65);
+  line-height: 1.7;
+  margin-bottom: 32px;
+}
+.permission-desc em { color: var(--c-amber); font-style: normal; font-weight: 500; }
+.permission-btn {
+  padding: 14px 42px;
+  background: var(--c-accent);
+  border: none;
+  border-radius: 6px;
+  color: #fff;
+  font-family: var(--f-display);
+  font-weight: 700;
+  font-size: 13px; letter-spacing: 2px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+.permission-btn:hover { background: var(--c-accent-hover); }
+.permission-skip {
+  display: block;
+  margin: 18px auto 0;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.4);
+  font-family: var(--f-body);
+  font-size: 12px;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.permission-skip:hover { color: rgba(255,255,255,0.7); }
+
+/* ─── SCANLINES & VIGNETTE ──────────────────────────────── */
+.scanlines {
+  position: fixed; inset: 0;
+  pointer-events: none; z-index: 5;
+  opacity: 0;
+}
+.scanlines.visible { opacity: 0; }
+.vignette {
+  position: fixed; inset: 0;
+  pointer-events: none; z-index: 6;
+  background: radial-gradient(ellipse at center, transparent 55%, rgba(10, 6, 20, 0.35) 100%);
+  opacity: 0; transition: opacity 1.5s ease;
+}
+.vignette.visible { opacity: 1; }
+
+/* ─── CORNERS ───────────────────────────────────────────── */
+.corner {
+  position: fixed; width: 44px; height: 44px;
+  z-index: 20; pointer-events: none; opacity: 0;
+  transition: opacity 1s ease 0.5s;
+}
+.corner.visible { opacity: 0.35; }
+.corner--tl { top: 24px; left: 24px; border-top: 1px solid rgba(255,255,255,0.18); border-left: 1px solid rgba(255,255,255,0.18); }
+.corner--tr { top: 24px; right: 24px; border-top: 1px solid rgba(255,255,255,0.18); border-right: 1px solid rgba(255,255,255,0.18); }
+.corner--bl { bottom: 24px; left: 24px; border-bottom: 1px solid rgba(255,255,255,0.18); border-left: 1px solid rgba(255,255,255,0.18); }
+.corner--br { bottom: 24px; right: 24px; border-bottom: 1px solid rgba(255,255,255,0.18); border-right: 1px solid rgba(255,255,255,0.18); }
+
+/* ─── MODE INDICATOR (top-left) ─────────────────────────── */
+.mode-indicator {
+  position: fixed; top: 52px; left: 52px;
+  z-index: 20; pointer-events: none;
+  opacity: 0; transform: translateY(20px);
+  transition: all 0.6s var(--ease-out);
+}
+.mode-indicator.visible { opacity: 1; transform: translateY(0); }
+.mode-indicator-label {
+  font-family: var(--f-mono);
+  font-size: 10px; letter-spacing: 4px; text-transform: uppercase;
+  color: rgba(255,255,255,0.5);
+  margin-bottom: 6px;
+  display: flex; align-items: center; gap: 8px;
+}
+.mode-indicator-label::before {
+  content: ''; width: 6px; height: 6px;
+  background: var(--c-amber); border-radius: 50%;
+  animation: pulse 1.6s ease-in-out infinite;
+}
+.mode-indicator-name {
+  font-family: var(--f-display);
+  font-size: 28px; font-weight: 700;
+  letter-spacing: -0.5px;
+  color: rgba(255, 255, 255, 0.9);
+}
+.mode-indicator-zh {
+  font-family: var(--f-zh);
+  font-size: 13px; font-weight: 400;
+  letter-spacing: 4px;
+  color: rgba(255, 255, 255, 0.45);
+  margin-top: 4px;
+}
+
+/* ─── BPM DISPLAY ───────────────────────────────────────── */
+.bpm-display {
+  position: fixed; top: 52px; left: 52px;
+  transform: translateY(100px);
+  z-index: 20; pointer-events: none;
+  opacity: 0;
+  transition: all 0.6s var(--ease-out);
+  margin-top: 88px;
+}
+.bpm-display.visible { opacity: 1; }
+.bpm-row { display: flex; gap: 16px; margin-top: 18px; }
+.bpm-item {
+  padding: 8px 12px;
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 6px;
+  min-width: 72px;
+}
+.bpm-num {
+  font-family: var(--f-mono);
+  font-size: 18px; font-weight: 500;
+  color: var(--c-amber);
+  line-height: 1;
+}
+.bpm-lbl {
+  font-family: var(--f-mono);
+  font-size: 8px; letter-spacing: 2px; text-transform: uppercase;
+  color: rgba(245, 243, 255, 0.55);
+  margin-top: 3px;
+}
+
+/* ─── AUDIO STATS (top-right, 5 bands) ──────────────────── */
+.audio-stats {
+  position: fixed; top: 52px; right: 52px;
+  z-index: 20; pointer-events: none;
+  display: flex; gap: 10px; align-items: flex-end;
+  padding: 14px 16px;
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 10px;
+  opacity: 0; transform: translateY(20px);
+  transition: all 0.6s var(--ease-out);
+}
+.audio-stats.visible { opacity: 1; transform: translateY(0); }
+.freq-bar-group {
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+}
+.freq-bar {
+  width: 7px; height: 72px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 4px;
+  position: relative; overflow: hidden;
+}
+.freq-fill {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  border-radius: 3px;
+  transition: height 0.06s linear;
+}
+.freq-fill.b1 { background: rgba(255,255,255,0.5); }
+.freq-fill.b2 { background: rgba(255,255,255,0.55); }
+.freq-fill.b3 { background: rgba(255,255,255,0.6); }
+.freq-fill.b4 { background: rgba(255,255,255,0.55); }
+.freq-fill.b5 { background: rgba(255,255,255,0.5); }
+.freq-label {
+  font-family: var(--f-mono);
+  font-size: 8px; letter-spacing: 1px; text-transform: uppercase;
+  color: rgba(245, 243, 255, 0.55);
+}
+
+/* ─── TELEPROMPTER (top center) ─────────────────────────── */
+.teleprompter {
+  position: fixed;
+  top: 44px; left: 50%;
+  transform: translateX(-50%) translateY(-20px);
+  z-index: 18;
+  width: min(680px, 68vw);
+  padding: 22px 28px 18px;
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+  opacity: 0; visibility: hidden;
+  transition: all 0.6s var(--ease-out);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+.teleprompter.visible { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); }
+.tp-head {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 10px;
+}
+.tp-meta {
+  font-family: var(--f-mono);
+  font-size: 9px; letter-spacing: 3px; text-transform: uppercase;
+  color: rgba(255,255,255,0.55);
+  display: flex; align-items: center; gap: 8px;
+}
+.tp-meta .tp-author { color: rgba(255, 255, 255, 0.4); }
+.tp-nav { display: flex; gap: 4px; align-items: center; }
+.tp-btn {
+  width: 26px; height: 26px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255,255,255,0.6);
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 12px;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s ease;
+}
+.tp-btn:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.4); color: #fff; }
+.tp-idx {
+  font-family: var(--f-mono);
+  font-size: 9px; letter-spacing: 1px;
+  color: rgba(245, 243, 255, 0.55);
+  padding: 0 8px;
+  min-width: 36px; text-align: center;
+}
+.tp-poem {
+  font-family: var(--f-poem);
+  font-weight: 400;
+  line-height: 1.55;
+  text-align: center;
+}
+.tp-line {
+  font-size: 18px;
+  color: rgba(245, 243, 255, 0.35);
+  padding: 2px 0;
+  transition: all 0.5s var(--ease-out);
+  letter-spacing: 0.5px;
+}
+.tp-line.active {
+  color: #FFFFFF;
+  font-size: 22px;
+  font-weight: 600;
+}
+.tp-zh {
+  font-family: var(--f-zh);
+  font-size: 12px;
+  letter-spacing: 3px;
+  color: rgba(255, 255, 255, 0.45);
+  text-align: center;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed rgba(255,255,255,0.1);
+  font-weight: 300;
+}
+.tp-footer {
+  display: flex; justify-content: center; align-items: center; gap: 12px;
+  margin-top: 12px;
+}
+.tp-next {
+  padding: 6px 16px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: rgba(255,255,255,0.6);
+  border-radius: 6px;
+  font-family: var(--f-mono);
+  font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.tp-next:hover { background: rgba(255,255,255,0.15); color: #fff; }
+.tp-hint {
+  font-family: var(--f-mono);
+  font-size: 9px; letter-spacing: 2px; text-transform: uppercase;
+  color: rgba(245, 243, 255, 0.35);
+}
+
+/* ─── MODE BAR (bottom) ─────────────────────────────────── */
+.mode-bar {
+  position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%);
+  z-index: 20;
+  display: flex; gap: 4px;
+  padding: 8px;
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 10px;
+  opacity: 0; transform: translateX(-50%) translateY(40px);
+  transition: all 0.6s var(--ease-out);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+.mode-bar.visible { opacity: 1; transform: translateX(-50%) translateY(0); }
+.mode-btn {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 12px 22px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 112px;
+}
+.mode-btn:hover {
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(255,255,255,0.15);
+}
+.mode-btn.active {
+  background: rgba(255,255,255,0.1);
+  border-color: rgba(255,255,255,0.25);
+}
+.mode-num {
+  font-family: var(--f-mono);
+  font-size: 9px; letter-spacing: 2px;
+  color: rgba(245, 243, 255, 0.4);
+  margin-bottom: 3px;
+}
+.mode-btn.active .mode-num { color: var(--c-amber); }
+.mode-label {
+  font-family: var(--f-display);
+  font-size: 12px; font-weight: 700;
+  letter-spacing: 0.5px;
+  color: rgba(245, 243, 255, 0.7);
+  transition: color 0.3s ease;
+  white-space: nowrap;
+  text-transform: uppercase;
+}
+.mode-btn.active .mode-label { color: #fff; }
+.mode-zh {
+  font-family: var(--f-zh);
+  font-size: 10px; letter-spacing: 2px;
+  color: rgba(255,255,255,0.35);
+  margin-top: 3px;
+  white-space: nowrap;
+}
+.mode-btn.active .mode-zh { color: rgba(255,255,255,0.6); }
+
+/* ─── FLASH TRANSITION ──────────────────────────────────── */
+.flash {
+  position: fixed; inset: 0;
+  z-index: 40; pointer-events: none;
+  background: radial-gradient(ellipse at center, rgba(255,255,255,0.8), transparent 70%);
+  opacity: 0;
+  transition: opacity 120ms ease-out;
+}
+.flash.active { opacity: 1; }
+
+/* ─── POEM TEXT OVERLAYS ────────────────────────────────── */
+.poem-container {
+  position: fixed; inset: 0;
+  z-index: 15; pointer-events: none;
+}
+.poem-text {
+  position: absolute;
+  text-align: center;
+  pointer-events: none;
+  display: flex; flex-direction: column; gap: 6px;
+  transition: opacity 0.8s ease, transform 0.8s ease;
+  max-width: 360px;
+}
+.poem-en {
+  font-family: var(--f-poem);
+  font-style: italic;
+  font-size: clamp(20px, 2.4vw, 28px);
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.88);
+  text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+  letter-spacing: 0.5px;
+  line-height: 1.4;
+}
+.poem-zh {
+  font-family: var(--f-zh);
+  font-size: clamp(10px, 1.2vw, 13px);
+  font-weight: 300;
+  color: rgba(255, 255, 255, 0.5);
+  letter-spacing: 4px;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+}
+
+/* ─── CONTROL CLUSTER (bottom-right) ────────────────────── */
+.ctrl-cluster {
+  position: fixed; bottom: 110px; right: 52px;
+  z-index: 20;
+  display: flex; flex-direction: column; gap: 10px;
+  align-items: flex-end;
+  opacity: 0;
+  transition: opacity 0.6s ease 0.6s;
+}
+.ctrl-cluster.visible { opacity: 1; }
+.ctrl-btn {
+  width: 44px; height: 44px;
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 50%;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 16px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.3s ease;
+  position: relative;
+}
+.ctrl-btn:hover { border-color: rgba(255,255,255,0.3); color: #fff; transform: scale(1.05); }
+.ctrl-btn.rec {
+  background: rgba(245, 158, 11, 0.15);
+  border-color: var(--c-amber);
+  color: var(--c-amber);
+}
+.ctrl-btn.rec:hover { color: #fff; background: var(--c-amber); }
+.ctrl-btn.rec.recording {
+  background: var(--c-amber);
+  color: #0A0614;
+  animation: recPulse 1.4s ease-in-out infinite;
+}
+.ctrl-tooltip {
+  position: absolute; right: 54px;
+  top: 50%; transform: translateY(-50%);
+  padding: 5px 11px;
+  background: rgba(10, 6, 20, 0.95);
+  border: 1px solid var(--panel-border);
+  border-radius: 6px;
+  font-family: var(--f-mono);
+  font-size: 9px; letter-spacing: 2px; text-transform: uppercase;
+  color: rgba(255,255,255,0.6);
+  white-space: nowrap;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+.ctrl-btn:hover .ctrl-tooltip { opacity: 1; }
+
+/* ─── GIF RECORDER STATUS ──────────────────────────────── */
+.gif-status {
+  position: fixed;
+  bottom: 110px; right: 110px;
+  z-index: 30;
+  padding: 10px 16px;
+  background: rgba(10, 6, 20, 0.95);
+  border: 1px solid var(--c-amber);
+  border-radius: 8px;
+  display: flex; align-items: center; gap: 12px;
+  opacity: 0; visibility: hidden; transform: translateX(10px);
+  transition: all 0.3s ease;
+  min-width: 220px;
+}
+.gif-status.visible { opacity: 1; visibility: visible; transform: translateX(0); }
+.gif-status-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--c-amber);
+  animation: pulse 0.8s ease-in-out infinite;
+}
+.gif-status-text {
+  font-family: var(--f-mono);
+  font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--c-amber);
+  flex: 1;
+}
+.gif-progress {
+  flex: 1;
+  height: 3px;
+  background: rgba(245, 158, 11, 0.2);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.gif-progress-bar {
+  height: 100%;
+  background: var(--c-amber);
+  width: 0%;
+  transition: width 0.2s linear;
+}
+
+/* ─── HELP PANEL ────────────────────────────────────────── */
+.help-panel {
+  position: fixed; bottom: 166px; right: 52px;
+  z-index: 20;
+  width: 280px; padding: 22px;
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 10px;
+  opacity: 0; visibility: hidden;
+  transform: translateY(10px);
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+.help-panel.visible { opacity: 1; visibility: visible; transform: translateY(0); }
+.help-panel h4 {
+  font-family: var(--f-display);
+  font-size: 13px; font-weight: 700;
+  letter-spacing: 2px;
+  color: #fff;
+  margin-bottom: 14px;
+  text-transform: uppercase;
+}
+.help-row {
+  display: flex; gap: 10px; align-items: flex-start;
+  margin-bottom: 10px;
+  font-size: 11px; line-height: 1.6;
+  color: rgba(245, 243, 255, 0.75);
+}
+.help-row::before {
+  content: '→';
+  color: var(--c-amber);
+  font-family: var(--f-mono);
+  flex-shrink: 0;
+}
+.help-zh {
+  font-family: var(--f-zh);
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.45);
+  letter-spacing: 2px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px dashed rgba(255,255,255,0.1);
+  line-height: 1.7;
+}
+
+/* ─── KEYFRAMES ─────────────────────────────────────────── */
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes shimmer { to { opacity: 0.6; } }
+@keyframes pulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+@keyframes recPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7); }
+  50% { box-shadow: 0 0 0 12px rgba(245, 158, 11, 0); }
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ─── RESPONSIVE ────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .teleprompter { width: 90vw; top: 30px; }
+  .mode-indicator { top: 30px; left: 30px; }
+  .bpm-display { left: 30px; margin-top: 78px; }
+  .audio-stats { top: 30px; right: 30px; }
+  .mode-bar { bottom: 20px; }
+  .mode-btn { padding: 8px 14px; min-width: 88px; }
+  .mode-zh { display: none; }
+  .ctrl-cluster { right: 30px; bottom: 90px; }
+  .help-panel { right: 30px; bottom: 146px; }
+  .corner--tl, .corner--bl { left: 12px; }
+  .corner--tr, .corner--br { right: 12px; }
+  .corner--tl, .corner--tr { top: 12px; }
+  .corner--bl, .corner--br { bottom: 12px; }
+}
+
+/* responsive title */
+@media (max-width: 640px) {
+  .landing-title { font-size: clamp(40px, 14vw, 72px); letter-spacing: -2px; }
+  .landing-pills { flex-wrap: wrap; }
+}
+</style>
+</head>
+<body>
+
+<!-- LOADER -->
+<div class="loader" id="loader">
+  <div class="loader-ring"></div>
+  <div class="loader-text">INITIALIZING</div>
+</div>
+
+<!-- LANDING -->
+<div class="landing" id="landing">
+  <div class="landing-content">
+    <div class="landing-year">2026 · AUDIO-VISUAL EXPERIMENT</div>
+    <div class="landing-zh">聲 音 詩 歌</div>
+    <h1 class="landing-title">SoundPoetry</h1>
+    <div class="landing-rule"></div>
+    <p class="landing-sub">See the unseen. Hear the visible.</p>
+    <p class="landing-zh-sub">以聲為筆 · 繪夢為章</p>
+    <div class="landing-pills">
+      <span class="landing-pill">Voice</span>
+      <span class="landing-pill">Web Audio API</span>
+      <span class="landing-pill">Three.js</span>
+      <span class="landing-pill">Real-time</span>
+    </div>
+    <button class="landing-btn" id="startBtn">Enter</button>
+  </div>
+</div>
+
+<!-- PERMISSION MODAL -->
+<div class="permission-modal" id="permissionModal">
+  <div class="permission-box">
+    <div class="permission-icon">&#9834;</div>
+    <div class="permission-title">Microphone Access</div>
+    <div class="permission-zh">需要麥克風權限</div>
+    <div class="permission-desc">
+      SoundPoetry needs your microphone to capture voice and ambient sound.<br>
+      All audio is processed <em>locally in your browser</em> — nothing is recorded or uploaded.
+    </div>
+    <button class="permission-btn" id="permissionBtn">Allow Microphone</button>
+    <button class="permission-skip" id="permissionSkip">Skip — use demo audio</button>
+  </div>
+</div>
+
+<!-- OVERLAYS -->
+<div class="scanlines" id="scanlines"></div>
+<div class="vignette" id="vignette"></div>
+<div class="flash" id="flash"></div>
+<div class="corner corner--tl" id="c1"></div>
+<div class="corner corner--tr" id="c2"></div>
+<div class="corner corner--bl" id="c3"></div>
+<div class="corner corner--br" id="c4"></div>
+
+<!-- MODE INDICATOR -->
+<div class="mode-indicator" id="modeIndicator">
+  <div class="mode-indicator-label">Current Mode</div>
+  <div class="mode-indicator-name" id="modeNameEn">Breath of Words</div>
+  <div class="mode-indicator-zh" id="modeNameZh">詞之呼吸</div>
+</div>
+
+<!-- BPM DISPLAY -->
+<div class="bpm-display" id="bpmDisplay">
+  <div class="bpm-row">
+    <div class="bpm-item">
+      <div class="bpm-num" id="bpmNum">—</div>
+      <div class="bpm-lbl">BPM</div>
+    </div>
+    <div class="bpm-item">
+      <div class="bpm-num" id="volNum">0</div>
+      <div class="bpm-lbl">Vol %</div>
+    </div>
+  </div>
+</div>
+
+<!-- AUDIO STATS (5 bands) -->
+<div class="audio-stats" id="audioStats">
+  <div class="freq-bar-group"><div class="freq-bar"><div class="freq-fill b1" id="bar1"></div></div><span class="freq-label">Sub</span></div>
+  <div class="freq-bar-group"><div class="freq-bar"><div class="freq-fill b2" id="bar2"></div></div><span class="freq-label">Bass</span></div>
+  <div class="freq-bar-group"><div class="freq-bar"><div class="freq-fill b3" id="bar3"></div></div><span class="freq-label">Mid</span></div>
+  <div class="freq-bar-group"><div class="freq-bar"><div class="freq-fill b4" id="bar4"></div></div><span class="freq-label">High</span></div>
+  <div class="freq-bar-group"><div class="freq-bar"><div class="freq-fill b5" id="bar5"></div></div><span class="freq-label">Treb</span></div>
+</div>
+
+<!-- TELEPROMPTER -->
+<div class="teleprompter" id="teleprompter">
+  <div class="tp-head">
+    <div class="tp-meta">
+      <span id="tpTitle">—</span>
+      <span class="tp-author" id="tpAuthor"></span>
+    </div>
+    <div class="tp-nav">
+      <button class="tp-btn" id="tpPrev">‹</button>
+      <span class="tp-idx" id="tpIdx">1/1</span>
+      <button class="tp-btn" id="tpNext">›</button>
+    </div>
+  </div>
+  <div class="tp-poem" id="tpPoem"></div>
+  <div class="tp-zh" id="tpZh"></div>
+  <div class="tp-footer">
+    <button class="tp-next" id="tpAdvance">Next line →</button>
+    <span class="tp-hint">Read aloud · Lines advance with your voice</span>
+  </div>
+</div>
+
+<!-- MODE BAR -->
+<div class="mode-bar" id="modeBar">
+  <button class="mode-btn active" data-mode="breathOfWords">
+    <span class="mode-num">01</span>
+    <span class="mode-label">Breath of Words</span>
+    <span class="mode-zh">詞之呼吸</span>
+  </button>
+  <button class="mode-btn" data-mode="soundGalaxy">
+    <span class="mode-num">02</span>
+    <span class="mode-label">Sound Galaxy</span>
+    <span class="mode-zh">聲之星雲</span>
+  </button>
+  <button class="mode-btn" data-mode="inkInWater">
+    <span class="mode-num">03</span>
+    <span class="mode-label">Ink in Water</span>
+    <span class="mode-zh">墨入水</span>
+  </button>
+  <button class="mode-btn" data-mode="resonanceField">
+    <span class="mode-num">04</span>
+    <span class="mode-label">Resonance Field</span>
+    <span class="mode-zh">共振場</span>
+  </button>
+</div>
+
+<!-- POEM CONTAINER -->
+<div class="poem-container" id="poemContainer"></div>
+
+<!-- GIF STATUS -->
+<div class="gif-status" id="gifStatus">
+  <div class="gif-status-dot"></div>
+  <div class="gif-status-text" id="gifStatusText">Recording 0/90</div>
+  <div class="gif-progress"><div class="gif-progress-bar" id="gifProgressBar"></div></div>
+</div>
+
+<!-- CONTROL CLUSTER -->
+<div class="ctrl-cluster" id="ctrlCluster">
+  <button class="ctrl-btn" id="bgmBtn">
+    <span id="bgmIcon">&#9835;</span>
+    <span class="ctrl-tooltip">BGM On/Off</span>
+  </button>
+  <button class="ctrl-btn rec" id="recordBtn">
+    <span>&#11044;</span>
+    <span class="ctrl-tooltip">Record GIF</span>
+  </button>
+  <button class="ctrl-btn" id="screenshotBtn">
+    <span>&#9673;</span>
+    <span class="ctrl-tooltip">Screenshot</span>
+  </button>
+  <button class="ctrl-btn" id="helpBtn">
+    <span>?</span>
+    <span class="ctrl-tooltip">Help</span>
+  </button>
+</div>
+
+<!-- HELP PANEL -->
+<div class="help-panel" id="helpPanel">
+  <h4>How to play</h4>
+  <div class="help-row">Speak, sing, or play music near the mic — watch sound become poetry.</div>
+  <div class="help-row">Read the teleprompter aloud; lines advance as you voice them.</div>
+  <div class="help-row">Switch between 4 visual modes at the bottom.</div>
+  <div class="help-row">Record a GIF of your session from the right panel.</div>
+  <div class="help-zh">對著麥克風朗讀、歌唱或放音樂。<br>聲音會即時轉化為視覺詩歌。<br>底部切換四種模式，右側錄製 GIF。</div>
+</div>
+
+<!-- THREE.JS + GIF.JS CDN -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.js"></script>
+<script>
+
+// ═══════════════════════════════════════════════════════════
+//  AUDIO ENGINE
+// ═══════════════════════════════════════════════════════════
+class AudioEngine {
+  constructor() {
+    this.audioCtx = null;
+    this.analyser = null;
+    this.freqData = null;
+    this.bands = [0, 0, 0, 0, 0]; // sub, bass, mid, high, treble
+    this.bass = 0; this.mid = 0; this.treble = 0;
+    this.volume = 0; this.energy = 0;
+    this.beatDetected = false;
+    this.beatTimes = [];
+    this.bpm = 0;
+    this._s = [0, 0, 0, 0, 0];
+    this._energyHist = new Float32Array(43);
+    this._histIdx = 0;
+    this._useFallback = false;
+    this._fallbackT = 0;
+    this._lastBeatAt = 0;
+    this.loudnessStreak = 0;
+  }
+
+  async init(forceFallback = false) {
+    this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    this.analyser = this.audioCtx.createAnalyser();
+    this.analyser.fftSize = 2048;
+    this.analyser.smoothingTimeConstant = 0.8;
+    this.freqData = new Uint8Array(this.analyser.frequencyBinCount);
+
+    if (forceFallback) { this._useFallback = true; return; }
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false }
+      });
+      const source = this.audioCtx.createMediaStreamSource(stream);
+      source.connect(this.analyser);
+    } catch (e) {
+      console.warn('Microphone denied, using fallback mode');
+      this._useFallback = true;
+    }
+  }
+
+  update() {
+    if (this._useFallback) {
+      this._fallbackT += 0.016;
+      const t = this._fallbackT;
+      this.bands[0] = 0.35 + Math.sin(t * 0.4) * 0.22 + Math.sin(t * 1.3) * 0.1;
+      this.bands[1] = 0.40 + Math.sin(t * 0.5) * 0.25 + Math.sin(t * 1.7) * 0.1;
+      this.bands[2] = 0.32 + Math.sin(t * 0.8 + 1) * 0.22 + Math.sin(t * 2.3) * 0.08;
+      this.bands[3] = 0.28 + Math.sin(t * 1.0 + 1.5) * 0.18 + Math.sin(t * 2.6) * 0.06;
+      this.bands[4] = 0.25 + Math.sin(t * 1.2 + 2) * 0.16 + Math.sin(t * 3.1) * 0.06;
+      this.bass = (this.bands[0] + this.bands[1]) * 0.5;
+      this.mid = this.bands[2];
+      this.treble = (this.bands[3] + this.bands[4]) * 0.5;
+      this.volume = this.bass * 0.5 + this.mid * 0.3 + this.treble * 0.2;
+      this.energy = (this.bass + this.mid + this.treble) / 3;
+      this.beatDetected = Math.sin(t * 2.5) > 0.9;
+      this.loudnessStreak = this.volume > 0.35 ? this.loudnessStreak + 1 : 0;
+      return;
+    }
+    if (!this.analyser) return;
+    this.analyser.getByteFrequencyData(this.freqData);
+
+    const nyquist = this.audioCtx.sampleRate / 2;
+    const binHz = nyquist / this.analyser.frequencyBinCount;
+    const edges = [20, 100, 400, 1200, 4000, 16000];
+    const rawBands = [0, 0, 0, 0, 0];
+    const counts = [0, 0, 0, 0, 0];
+    for (let i = 1; i < this.freqData.length; i++) {
+      const hz = i * binHz;
+      const v = this.freqData[i] / 255;
+      for (let b = 0; b < 5; b++) {
+        if (hz >= edges[b] && hz < edges[b + 1]) {
+          rawBands[b] += v; counts[b]++;
+          break;
+        }
+      }
+    }
+    const f = 0.15;
+    for (let b = 0; b < 5; b++) {
+      const r = counts[b] > 0 ? rawBands[b] / counts[b] : 0;
+      this._s[b] += (r - this._s[b]) * f;
+      this.bands[b] = this._s[b];
+    }
+    this.bass = (this.bands[0] + this.bands[1]) * 0.5;
+    this.mid = this.bands[2];
+    this.treble = (this.bands[3] + this.bands[4]) * 0.5;
+    this.volume = this.bass * 0.5 + this.mid * 0.3 + this.treble * 0.2;
+    this.energy = (this.bass + this.mid + this.treble) / 3;
+
+    this._energyHist[this._histIdx] = this.energy;
+    this._histIdx = (this._histIdx + 1) % this._energyHist.length;
+    let avg = 0;
+    for (let i = 0; i < this._energyHist.length; i++) avg += this._energyHist[i];
+    avg /= this._energyHist.length;
+    this.beatDetected = this.energy > avg * 1.4 && this.energy > 0.15;
+
+    if (this.beatDetected) {
+      const now = performance.now();
+      if (now - this._lastBeatAt > 250) {
+        this.beatTimes.push(now);
+        if (this.beatTimes.length > 10) this.beatTimes.shift();
+        if (this.beatTimes.length >= 4) {
+          const intervals = [];
+          for (let i = 1; i < this.beatTimes.length; i++) {
+            intervals.push(this.beatTimes[i] - this.beatTimes[i - 1]);
+          }
+          const sum = intervals.reduce((a, b) => a + b, 0);
+          const avgInt = sum / intervals.length;
+          this.bpm = Math.round(60000 / avgInt);
+        }
+      }
+      this._lastBeatAt = now;
+    }
+    this.loudnessStreak = this.volume > 0.12 ? this.loudnessStreak + 1 : 0;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  VISUAL ENGINE (Three.js core)
+// ═══════════════════════════════════════════════════════════
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x0A0614);
+scene.fog = new THREE.FogExp2(0x0A0614, 0.008);
+
+const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 500);
+camera.position.set(0, 0, 30);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.5;
+document.body.prepend(renderer.domElement);
+
+const composer = new THREE.EffectComposer(renderer);
+composer.addPass(new THREE.RenderPass(scene, camera));
+const bloomPass = new THREE.UnrealBloomPass(
+  new THREE.Vector2(window.innerWidth, window.innerHeight),
+  0.6, 0.5, 0.85
+);
+composer.addPass(bloomPass);
+
+// Chromatic aberration shader
+const chromaShader = {
+  uniforms: {
+    tDiffuse: { value: null },
+    uOffset: { value: 0.002 },
+    uIntensity: { value: 1.0 }
+  },
+  vertexShader: `varying vec2 vUv; void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
+  fragmentShader: `
+    uniform sampler2D tDiffuse;
+    uniform float uOffset;
+    uniform float uIntensity;
+    varying vec2 vUv;
+    void main() {
+      vec2 c = vUv - 0.5;
+      float dist = length(c);
+      float off = uOffset * (1.0 + dist * 2.0) * uIntensity;
+      float r = texture2D(tDiffuse, vUv - c * off).r;
+      float g = texture2D(tDiffuse, vUv).g;
+      float b = texture2D(tDiffuse, vUv + c * off).b;
+      gl_FragColor = vec4(r, g, b, 1.0);
+    }
+  `
+};
+const chromaPass = new THREE.ShaderPass(chromaShader);
+chromaPass.enabled = false;
+composer.addPass(chromaPass);
+
+// Lights
+scene.add(new THREE.AmbientLight(0x332255, 0.6));
+const violetLight = new THREE.PointLight(0x8B5CF6, 3.5, 70);
+violetLight.position.set(10, 5, 10);
+scene.add(violetLight);
+const magentaLight = new THREE.PointLight(0xE879F9, 3.0, 60);
+magentaLight.position.set(-10, -3, 5);
+scene.add(magentaLight);
+const amberLight = new THREE.PointLight(0xF59E0B, 2.2, 55);
+amberLight.position.set(0, 8, -10);
+scene.add(amberLight);
+const cyanLight = new THREE.PointLight(0x22D3EE, 1.8, 50);
+cyanLight.position.set(-5, -8, 8);
+scene.add(cyanLight);
+
+const clock = new THREE.Clock();
+let mouseX = 0, mouseY = 0;
+document.addEventListener('mousemove', e => {
+  mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+  mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+});
+
+// ═══════════════════════════════════════════════════════════
+//  SHARED TEXTURES
+// ═══════════════════════════════════════════════════════════
+function makeSoftCircle() {
+  const s = 64, c = document.createElement('canvas');
+  c.width = c.height = s;
+  const ctx = c.getContext('2d');
+  const g = ctx.createRadialGradient(s/2, s/2, 0, s/2, s/2, s/2);
+  g.addColorStop(0, 'rgba(255,255,255,1)');
+  g.addColorStop(0.2, 'rgba(255,255,255,0.9)');
+  g.addColorStop(0.5, 'rgba(255,255,255,0.4)');
+  g.addColorStop(1, 'rgba(255,255,255,0)');
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, s, s);
+  return new THREE.CanvasTexture(c);
+}
+const particleTex = makeSoftCircle();
+
+// Helper: HSL-ish blend
+function setColor(arr, i3, r, g, b) {
+  arr[i3] = r; arr[i3+1] = g; arr[i3+2] = b;
+}
+
+// ═══════════════════════════════════════════════════════════
+//  MODE 1: BREATH OF WORDS
+// ═══════════════════════════════════════════════════════════
+const breathOfWords = (() => {
+  const COUNT = 6144;
+  const CHARS = ['夢', '聲', '光', '詩', '月', '雲', 'HOPE', 'DREAM', 'SOUND', 'LIGHT'];
+  let charPoints = {};
+  let geo, mat, points;
+  let positions, colors, targets, velocities;
+  let formingChar = false, formTimer = 0;
+  let currentTargets = null;
+  let group;
+  let burstParticles = []; // beat-triggered radial particles
+
+  function extractPoints(text) {
+    const res = 80, c = document.createElement('canvas');
+    c.width = c.height = res;
+    const ctx = c.getContext('2d');
+    const size = text.length > 1 ? res * 0.28 : res * 0.75;
+    ctx.font = `900 ${size}px "Noto Serif TC", "Syne", sans-serif`;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#fff';
+    ctx.fillText(text, res / 2, res / 2);
+    const img = ctx.getImageData(0, 0, res, res);
+    const pts = [];
+    const step = text.length > 1 ? 1 : 2;
+    for (let y = 0; y < res; y += step) {
+      for (let x = 0; x < res; x += step) {
+        if (img.data[(y * res + x) * 4 + 3] > 128) {
+          pts.push({ x: (x / res - 0.5) * 14, y: -(y / res - 0.5) * 10 });
+        }
+      }
+    }
+    return pts;
+  }
+
+  function setup(sc) {
+    CHARS.forEach(ch => { charPoints[ch] = extractPoints(ch); });
+
+    geo = new THREE.BufferGeometry();
+    positions = new Float32Array(COUNT * 3);
+    colors = new Float32Array(COUNT * 3);
+    targets = new Float32Array(COUNT * 3);
+    velocities = new Float32Array(COUNT * 3);
+
+    for (let i = 0; i < COUNT; i++) {
+      const a = Math.random() * Math.PI * 2;
+      const r = 2 + Math.random() * 16;
+      positions[i*3] = Math.cos(a) * r;
+      positions[i*3+1] = (Math.random() - 0.5) * 22;
+      positions[i*3+2] = (Math.random() - 0.5) * 10;
+      setColor(colors, i*3, 0.55, 0.36, 0.96);
+      velocities[i*3] = (Math.random()-0.5)*0.02;
+      velocities[i*3+1] = (Math.random()-0.5)*0.02;
+      velocities[i*3+2] = (Math.random()-0.5)*0.02;
+    }
+
+    geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+    mat = new THREE.PointsMaterial({
+      size: 0.16, map: particleTex,
+      transparent: true, opacity: 0.95,
+      blending: THREE.AdditiveBlending, depthWrite: false,
+      vertexColors: true,
+    });
+
+    points = new THREE.Points(geo, mat);
+    group = new THREE.Group();
+    group.add(points);
+    sc.add(group);
+  }
+
+  function cleanup(sc) { sc.remove(group); burstParticles = []; }
+
+  function triggerCharacter() {
+    const ch = CHARS[Math.floor(Math.random() * CHARS.length)];
+    const pts = charPoints[ch];
+    if (!pts || pts.length === 0) return;
+    currentTargets = pts;
+    formingChar = true;
+    formTimer = 0;
+    for (let i = 0; i < COUNT; i++) {
+      const pt = pts[i % pts.length];
+      targets[i*3] = pt.x + (Math.random()-0.5)*0.4;
+      targets[i*3+1] = pt.y + (Math.random()-0.5)*0.4;
+      targets[i*3+2] = (Math.random()-0.5)*2;
+    }
+  }
+
+  function spawnBurst(cx, cy, cz, strength) {
+    for (let i = 0; i < 150; i++) {
+      const a = Math.random() * Math.PI * 2;
+      const phi = Math.random() * Math.PI;
+      const sp = 0.15 + Math.random() * 0.35 * strength;
+      burstParticles.push({
+        x: cx, y: cy, z: cz,
+        vx: Math.sin(phi) * Math.cos(a) * sp,
+        vy: Math.sin(phi) * Math.sin(a) * sp,
+        vz: Math.cos(phi) * sp,
+        life: 1.0,
+        hue: Math.random()
+      });
+    }
+  }
+
+  function update(t, dt, audio) {
+    if (!positions) return;
+
+    if (audio.beatDetected && !formingChar) {
+      triggerCharacter();
+      spawnBurst(0, 0, 0, audio.energy * 2);
+    }
+    if (audio.volume > 0.2 && !formingChar && Math.random() < 0.008) {
+      triggerCharacter();
+    }
+
+    if (formingChar) {
+      formTimer += dt;
+      if (formTimer > 2.6) { formingChar = false; }
+    }
+
+    for (let i = 0; i < COUNT; i++) {
+      const i3 = i * 3;
+      if (formingChar) {
+        const ease = Math.min(formTimer / 0.9, 1.0);
+        const spring = 0.035 + ease * 0.08;
+        velocities[i3] += (targets[i3] - positions[i3]) * spring;
+        velocities[i3+1] += (targets[i3+1] - positions[i3+1]) * spring;
+        velocities[i3+2] += (targets[i3+2] - positions[i3+2]) * spring;
+        velocities[i3] *= 0.88; velocities[i3+1] *= 0.88; velocities[i3+2] *= 0.88;
+      } else {
+        velocities[i3] += (Math.random()-0.5) * 0.012 + Math.sin(t*0.5+i) * 0.002;
+        velocities[i3+1] += (Math.random()-0.5) * 0.012 + audio.treble * 0.012;
+        velocities[i3+2] += (Math.random()-0.5) * 0.006;
+        velocities[i3] *= 0.96; velocities[i3+1] *= 0.96; velocities[i3+2] *= 0.96;
+      }
+      positions[i3] += velocities[i3];
+      positions[i3+1] += velocities[i3+1];
+      positions[i3+2] += velocities[i3+2];
+
+      if (Math.abs(positions[i3]) > 26) velocities[i3] *= -0.5;
+      if (Math.abs(positions[i3+1]) > 19) velocities[i3+1] *= -0.5;
+      if (Math.abs(positions[i3+2]) > 11) velocities[i3+2] *= -0.5;
+
+      // Color: violet → magenta → amber based on audio
+      const bass = audio.bass, treb = audio.treble, mid = audio.mid;
+      const hueShift = Math.sin(i * 0.003 + t * 0.5) * 0.5 + 0.5;
+      colors[i3] = 0.45 + bass * 0.55 + hueShift * 0.15;
+      colors[i3+1] = 0.25 + treb * 0.55 + mid * 0.2;
+      colors[i3+2] = 0.85 + treb * 0.15 - bass * 0.25;
+    }
+
+    geo.attributes.position.needsUpdate = true;
+    geo.attributes.color.needsUpdate = true;
+    mat.size = 0.14 + audio.volume * 0.2;
+
+    // Update bursts
+    for (let i = burstParticles.length - 1; i >= 0; i--) {
+      const p = burstParticles[i];
+      p.x += p.vx; p.y += p.vy; p.z += p.vz;
+      p.vx *= 0.96; p.vy *= 0.96; p.vz *= 0.96;
+      p.life -= dt * 0.8;
+      if (p.life <= 0) burstParticles.splice(i, 1);
+    }
+  }
+
+  return { setup, cleanup, update };
+})();
+
+// ═══════════════════════════════════════════════════════════
+//  MODE 2: SOUND GALAXY
+// ═══════════════════════════════════════════════════════════
+const soundGalaxy = (() => {
+  const COUNT = 6144;
+  const STAR_COUNT = 3500;
+  let group, geo, mat, points;
+  let positions, colors, basePositions;
+  let starPoints, coreMesh, coreHalo;
+  let novaParticles = [];
+  let novaGeo, novaPts;
+  const NOVA_MAX = 400;
+
+  function generateGalaxy() {
+    basePositions = new Float32Array(COUNT * 3);
+    const arms = 5;
+    for (let i = 0; i < COUNT; i++) {
+      const i3 = i * 3;
+      const radius = Math.pow(Math.random(), 0.5) * 20;
+      const armAngle = (i % arms) * (Math.PI * 2 / arms);
+      const spinAngle = radius * 0.65;
+      const rnd = Math.pow(Math.random(), 3) * (Math.random() < 0.5 ? 1 : -1) * (1.8 - radius * 0.05);
+      basePositions[i3] = Math.cos(armAngle + spinAngle) * radius + rnd;
+      basePositions[i3+1] = (Math.random() - 0.5) * 0.7 * Math.max(0.1, 1 - radius / 22);
+      basePositions[i3+2] = Math.sin(armAngle + spinAngle) * radius + rnd;
+    }
+  }
+
+  function setup(sc) {
+    group = new THREE.Group();
+    generateGalaxy();
+
+    geo = new THREE.BufferGeometry();
+    positions = new Float32Array(COUNT * 3);
+    colors = new Float32Array(COUNT * 3);
+    positions.set(basePositions);
+
+    for (let i = 0; i < COUNT; i++) {
+      const r = Math.sqrt(basePositions[i*3]**2 + basePositions[i*3+2]**2) / 20;
+      const arm = i % 5;
+      // Multicolor arms: violet, magenta, amber, cyan, white
+      const palette = [
+        [0.55, 0.36, 0.96], [0.91, 0.47, 0.98], [0.96, 0.62, 0.04],
+        [0.13, 0.83, 0.93], [1.0, 0.93, 1.0]
+      ];
+      const c = palette[arm];
+      colors[i*3] = c[0] * (1 - r * 0.2) + r * 0.3;
+      colors[i*3+1] = c[1] * (1 - r * 0.3) + r * 0.3;
+      colors[i*3+2] = c[2] + r * 0.1;
+    }
+
+    geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+    mat = new THREE.PointsMaterial({
+      size: 0.14, map: particleTex,
+      transparent: true, opacity: 0.92,
+      blending: THREE.AdditiveBlending, depthWrite: false,
+      vertexColors: true,
+    });
+    points = new THREE.Points(geo, mat);
+    group.add(points);
+
+    // Background stars with varied color
+    const starGeo = new THREE.BufferGeometry();
+    const starPos = new Float32Array(STAR_COUNT * 3);
+    const starCol = new Float32Array(STAR_COUNT * 3);
+    for (let i = 0; i < STAR_COUNT; i++) {
+      starPos[i*3] = (Math.random()-0.5) * 120;
+      starPos[i*3+1] = (Math.random()-0.5) * 120;
+      starPos[i*3+2] = (Math.random()-0.5) * 120;
+      const hueRand = Math.random();
+      if (hueRand < 0.6) { starCol[i*3] = 1; starCol[i*3+1] = 1; starCol[i*3+2] = 1; }
+      else if (hueRand < 0.85) { starCol[i*3] = 0.78; starCol[i*3+1] = 0.6; starCol[i*3+2] = 1; }
+      else { starCol[i*3] = 1; starCol[i*3+1] = 0.8; starCol[i*3+2] = 0.3; }
+    }
+    starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
+    starGeo.setAttribute('color', new THREE.BufferAttribute(starCol, 3));
+    starPoints = new THREE.Points(starGeo, new THREE.PointsMaterial({
+      size: 0.08, transparent: true, opacity: 0.8,
+      blending: THREE.AdditiveBlending, depthWrite: false,
+      vertexColors: true, map: particleTex
+    }));
+    group.add(starPoints);
+
+    // Core
+    coreMesh = new THREE.Mesh(
+      new THREE.SphereGeometry(0.6, 24, 24),
+      new THREE.MeshBasicMaterial({ color: 0xE879F9, transparent: true, opacity: 0.8 })
+    );
+    group.add(coreMesh);
+    coreHalo = new THREE.Mesh(
+      new THREE.SphereGeometry(1.4, 24, 24),
+      new THREE.MeshBasicMaterial({ color: 0xF59E0B, transparent: true, opacity: 0.25, blending: THREE.AdditiveBlending })
+    );
+    group.add(coreHalo);
+
+    // Nova particles (pre-allocate)
+    novaGeo = new THREE.BufferGeometry();
+    const novaPos = new Float32Array(NOVA_MAX * 3);
+    const novaCol = new Float32Array(NOVA_MAX * 3);
+    novaGeo.setAttribute('position', new THREE.BufferAttribute(novaPos, 3));
+    novaGeo.setAttribute('color', new THREE.BufferAttribute(novaCol, 3));
+    novaPts = new THREE.Points(novaGeo, new THREE.PointsMaterial({
+      size: 0.3, map: particleTex,
+      transparent: true, opacity: 1.0,
+      blending: THREE.AdditiveBlending, depthWrite: false,
+      vertexColors: true,
+    }));
+    group.add(novaPts);
+    novaParticles = [];
+
+    sc.add(group);
+  }
+
+  function cleanup(sc) { sc.remove(group); novaParticles = []; }
+
+  function spawnNova(strength) {
+    const n = Math.min(80, Math.floor(30 + strength * 60));
+    for (let i = 0; i < n && novaParticles.length < NOVA_MAX; i++) {
+      const a = Math.random() * Math.PI * 2;
+      const phi = (Math.random() - 0.5) * 0.4;
+      const sp = 0.15 + Math.random() * 0.1 * strength;
+      novaParticles.push({
+        x: 0, y: 0, z: 0,
+        vx: Math.cos(a) * sp,
+        vy: phi * sp * 2,
+        vz: Math.sin(a) * sp,
+        life: 1.0,
+      });
+    }
+  }
+
+  function update(t, dt, audio) {
+    if (!positions) return;
+    const rotSpeed = 0.05 + audio.bass * 0.25;
+    group.rotation.y += rotSpeed * dt;
+    group.rotation.x = -0.4 + audio.treble * 0.25;
+
+    for (let i = 0; i < COUNT; i++) {
+      const i3 = i * 3;
+      const bx = basePositions[i3], bz = basePositions[i3+2];
+      const r = Math.sqrt(bx*bx + bz*bz);
+      const angle = Math.atan2(bz, bx) + t * (0.02 + audio.bass * 0.06) / (1 + r * 0.1);
+      const spread = 1 + audio.mid * 0.4;
+      const armTight = 1 - audio.treble * 0.2;
+      positions[i3] = Math.cos(angle) * r * spread * armTight;
+      positions[i3+1] = basePositions[i3+1] * (1 + audio.mid * 2.5);
+      positions[i3+2] = Math.sin(angle) * r * spread * armTight;
+    }
+    geo.attributes.position.needsUpdate = true;
+    mat.size = 0.1 + audio.volume * 0.18;
+
+    // Core pulse
+    const coreScale = 0.5 + audio.bass * 2.5;
+    coreMesh.scale.setScalar(coreScale);
+    coreMesh.material.opacity = 0.5 + audio.bass * 0.5;
+    const haloScale = 1 + audio.energy * 3 + Math.sin(t * 3) * 0.1;
+    coreHalo.scale.setScalar(haloScale);
+    coreHalo.material.opacity = 0.15 + audio.energy * 0.4;
+
+    // Nova burst on beat
+    if (audio.beatDetected) spawnNova(audio.energy * 2);
+
+    // Update nova particles
+    const npos = novaGeo.attributes.position.array;
+    const ncol = novaGeo.attributes.color.array;
+    for (let i = novaParticles.length - 1; i >= 0; i--) {
+      const p = novaParticles[i];
+      p.x += p.vx; p.y += p.vy; p.z += p.vz;
+      p.life -= dt * 0.8;
+      if (p.life <= 0) { novaParticles.splice(i, 1); continue; }
+    }
+    for (let i = 0; i < NOVA_MAX; i++) {
+      const p = novaParticles[i];
+      const i3 = i * 3;
+      if (p) {
+        npos[i3] = p.x; npos[i3+1] = p.y; npos[i3+2] = p.z;
+        ncol[i3] = 1.0 * p.life;
+        ncol[i3+1] = 0.5 * p.life;
+        ncol[i3+2] = 0.8 * p.life;
+      } else {
+        npos[i3] = 0; npos[i3+1] = 0; npos[i3+2] = 0;
+        ncol[i3] = 0; ncol[i3+1] = 0; ncol[i3+2] = 0;
+      }
+    }
+    novaGeo.attributes.position.needsUpdate = true;
+    novaGeo.attributes.color.needsUpdate = true;
+  }
+
+  return { setup, cleanup, update };
+})();
+
+// ═══════════════════════════════════════════════════════════
+//  MODE 3: INK IN WATER
+// ═══════════════════════════════════════════════════════════
+const inkInWater = (() => {
+  let group;
+  let blobs = [];
+  const BLOB_CONFIGS = [
+    { pos: [0, 0, 0], r: 3.2, detail: 5, phase: 0, tint: 0 },
+    { pos: [5, 2, -1], r: 2.2, detail: 4, phase: 1.1, tint: 1 },
+    { pos: [-4, -2, 1], r: 2.4, detail: 4, phase: 2.2, tint: 2 },
+    { pos: [3, -4, 2], r: 1.6, detail: 4, phase: 3.3, tint: 0 },
+    { pos: [-5, 2, -2], r: 2.0, detail: 4, phase: 4.4, tint: 1 },
+    { pos: [0, 5, -3], r: 1.4, detail: 3, phase: 5.5, tint: 2 },
+    { pos: [6, -1, 2], r: 1.3, detail: 3, phase: 6.6, tint: 0 },
+    { pos: [-6, -3, -1], r: 1.5, detail: 3, phase: 7.7, tint: 1 },
+    { pos: [2, 4, 2], r: 1.2, detail: 3, phase: 8.8, tint: 2 },
+    { pos: [-2, -5, -3], r: 1.1, detail: 3, phase: 9.9, tint: 0 },
+    { pos: [4, 4, -3], r: 1.0, detail: 3, phase: 11.0, tint: 1 },
+    { pos: [-3, 0, 3], r: 1.0, detail: 3, phase: 12.1, tint: 2 },
+  ];
+  const TINT_COLORS = [
+    { c: [0.55, 0.36, 0.96], e: [0.2, 0.1, 0.5] }, // violet
+    { c: [0.96, 0.62, 0.04], e: [0.4, 0.2, 0.02] }, // amber
+    { c: [0.13, 0.83, 0.93], e: [0.04, 0.3, 0.35] }, // cyan
+  ];
+  let mistGeo, mistPts;
+
+  function createBlob(cfg) {
+    const geo = new THREE.IcosahedronGeometry(cfg.r, cfg.detail);
+    const tint = TINT_COLORS[cfg.tint];
+    const mat = new THREE.MeshStandardMaterial({
+      color: new THREE.Color(tint.c[0], tint.c[1], tint.c[2]),
+      metalness: 0.3, roughness: 0.5,
+      transparent: true, opacity: 0.78,
+      emissive: new THREE.Color(tint.e[0], tint.e[1], tint.e[2]),
+      emissiveIntensity: 0.4,
+      side: THREE.DoubleSide,
+    });
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.userData.origPos = new Float32Array(geo.attributes.position.array);
+    mesh.userData.cfg = cfg;
+    mesh.userData.tint = tint;
+    return mesh;
+  }
+
+  function setup(sc) {
+    group = new THREE.Group();
+    blobs = [];
+    BLOB_CONFIGS.forEach(cfg => {
+      const blob = createBlob(cfg);
+      blob.position.set(...cfg.pos);
+      group.add(blob);
+      blobs.push(blob);
+    });
+
+    // Mist
+    mistGeo = new THREE.BufferGeometry();
+    const mistPos = new Float32Array(2000 * 3);
+    const mistCol = new Float32Array(2000 * 3);
+    for (let i = 0; i < 2000; i++) {
+      mistPos[i*3] = (Math.random()-0.5) * 32;
+      mistPos[i*3+1] = (Math.random()-0.5) * 22;
+      mistPos[i*3+2] = (Math.random()-0.5) * 16;
+      const hue = Math.random();
+      if (hue < 0.5) { mistCol[i*3] = 0.55; mistCol[i*3+1] = 0.36; mistCol[i*3+2] = 0.96; }
+      else if (hue < 0.8) { mistCol[i*3] = 0.91; mistCol[i*3+1] = 0.47; mistCol[i*3+2] = 0.98; }
+      else { mistCol[i*3] = 0.96; mistCol[i*3+1] = 0.62; mistCol[i*3+2] = 0.04; }
+    }
+    mistGeo.setAttribute('position', new THREE.BufferAttribute(mistPos, 3));
+    mistGeo.setAttribute('color', new THREE.BufferAttribute(mistCol, 3));
+    mistPts = new THREE.Points(mistGeo, new THREE.PointsMaterial({
+      size: 0.12, map: particleTex,
+      transparent: true, opacity: 0.55,
+      blending: THREE.AdditiveBlending, depthWrite: false,
+      vertexColors: true,
+    }));
+    group.add(mistPts);
+
+    sc.add(group);
+  }
+
+  function cleanup(sc) { sc.remove(group); }
+
+  function update(t, dt, audio) {
+    blobs.forEach((blob) => {
+      const pos = blob.geometry.attributes.position;
+      const orig = blob.userData.origPos;
+      const cfg = blob.userData.cfg;
+      const tint = blob.userData.tint;
+      const phase = cfg.phase;
+      const audioDisplace = audio.bass * 0.7 + audio.mid * 0.35;
+
+      for (let i = 0; i < pos.count; i++) {
+        const ox = orig[i*3], oy = orig[i*3+1], oz = orig[i*3+2];
+        const len = Math.sqrt(ox*ox + oy*oy + oz*oz) || 1;
+        const noise =
+          Math.sin(ox * 2.2 + t * 0.45 + phase) * Math.cos(oy * 2.6 + t * 0.35) * 0.35 +
+          Math.sin(oz * 3.2 + t * 0.65 + phase * 0.7) * Math.cos(ox * 1.6 + t * 0.4) * 0.22 +
+          Math.sin((ox + oy) * 1.9 + t * 0.55) * 0.18 +
+          Math.sin(oy * 4.0 + t * 0.8 + phase) * 0.1;
+        const scale = 1 + noise * (0.4 + audioDisplace * 0.9);
+        pos.setXYZ(i, ox * scale, oy * scale, oz * scale);
+      }
+      pos.needsUpdate = true;
+      blob.geometry.computeVertexNormals();
+
+      const bp = cfg.pos;
+      blob.position.x = bp[0] + Math.sin(t * 0.16 + phase) * 1.8 * (1 + audio.bass * 0.5);
+      blob.position.y = bp[1] + Math.cos(t * 0.13 + phase * 0.7) * 1.2;
+      blob.position.z = bp[2] + Math.sin(t * 0.1 + phase * 1.3) * 0.9;
+
+      const treb = audio.treble, bass = audio.bass;
+      blob.material.color.setRGB(
+        Math.min(1, tint.c[0] + treb * 0.4 + bass * 0.2),
+        Math.min(1, tint.c[1] + treb * 0.3),
+        Math.min(1, tint.c[2] + treb * 0.2)
+      );
+      blob.material.emissiveIntensity = 0.3 + audio.bass * 0.8;
+      blob.material.opacity = 0.6 + audio.volume * 0.35;
+
+      const pulse = 1 + audio.bass * 0.2 * Math.sin(t * 2.2 + phase);
+      blob.scale.setScalar(pulse);
+    });
+
+    // Mist drift
+    if (mistGeo) {
+      const mp = mistGeo.attributes.position.array;
+      for (let i = 0; i < 2000; i++) {
+        mp[i*3+1] += 0.01 + audio.treble * 0.04;
+        if (mp[i*3+1] > 11) mp[i*3+1] = -11;
+      }
+      mistGeo.attributes.position.needsUpdate = true;
+    }
+
+    group.rotation.y = t * 0.03;
+  }
+
+  return { setup, cleanup, update };
+})();
+
+// ═══════════════════════════════════════════════════════════
+//  MODE 4: RESONANCE FIELD
+// ═══════════════════════════════════════════════════════════
+const resonanceField = (() => {
+  const COLS = 45, ROWS = 45;
+  const SPACING = 0.55;
+  let group, pointsObj, linesObj;
+  let positions, colors, linePositions;
+  let impulses = [];
+
+  function setup(sc) {
+    group = new THREE.Group();
+    group.rotation.x = -0.5;
+
+    const total = COLS * ROWS;
+    const geo = new THREE.BufferGeometry();
+    positions = new Float32Array(total * 3);
+    colors = new Float32Array(total * 3);
+
+    for (let y = 0; y < ROWS; y++) {
+      for (let x = 0; x < COLS; x++) {
+        const idx = (y * COLS + x) * 3;
+        positions[idx] = (x - COLS / 2) * SPACING;
+        positions[idx+1] = (y - ROWS / 2) * SPACING;
+        positions[idx+2] = 0;
+        setColor(colors, idx, 0.55, 0.36, 0.96);
+      }
+    }
+    geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+    pointsObj = new THREE.Points(geo, new THREE.PointsMaterial({
+      size: 0.14, map: particleTex,
+      transparent: true, opacity: 0.9,
+      blending: THREE.AdditiveBlending, depthWrite: false,
+      vertexColors: true,
+    }));
+    group.add(pointsObj);
+
+    const lineVerts = [];
+    for (let y = 0; y < ROWS; y++) {
+      for (let x = 0; x < COLS; x++) {
+        const cx = (x - COLS/2) * SPACING;
+        const cy = (y - ROWS/2) * SPACING;
+        if (x < COLS - 1) lineVerts.push(cx, cy, 0, cx + SPACING, cy, 0);
+        if (y < ROWS - 1) lineVerts.push(cx, cy, 0, cx, cy + SPACING, 0);
+      }
+    }
+    linePositions = new Float32Array(lineVerts);
+    const lineGeo = new THREE.BufferGeometry();
+    lineGeo.setAttribute('position', new THREE.BufferAttribute(linePositions, 3));
+    linesObj = new THREE.LineSegments(lineGeo, new THREE.LineBasicMaterial({
+      color: 0x8B5CF6, transparent: true, opacity: 0.22,
+      blending: THREE.AdditiveBlending,
+    }));
+    group.add(linesObj);
+
+    sc.add(group);
+  }
+
+  function cleanup(sc) { sc.remove(group); impulses = []; }
+
+  function update(t, dt, audio) {
+    if (!positions) return;
+
+    if (audio.beatDetected) {
+      const numImpulses = 1 + Math.floor(Math.random() * 3);
+      for (let k = 0; k < numImpulses; k++) {
+        const ox = (Math.random() - 0.5) * COLS * 0.4;
+        const oy = (Math.random() - 0.5) * ROWS * 0.4;
+        impulses.push({ time: t, strength: audio.energy * 2.5, ox, oy });
+      }
+      if (impulses.length > 8) impulses.shift();
+    }
+
+    for (let y = 0; y < ROWS; y++) {
+      for (let x = 0; x < COLS; x++) {
+        const idx = (y * COLS + x) * 3;
+        const cx = x - COLS / 2;
+        const cy = y - ROWS / 2;
+        const dist = Math.sqrt(cx * cx + cy * cy);
+
+        let z = Math.sin(dist * 0.35 - t * 2.5) * audio.bass * 3.2;
+        z += Math.sin(cx * 0.28 + t * 1.8) * Math.cos(cy * 0.28 - t * 1.4) * audio.treble * 2.8;
+        z += Math.sin((cx + cy) * 0.3 + t * 1.2) * audio.mid * 2.0;
+        // Simplex-ish additional noise
+        z += Math.sin(cx * 0.5 + Math.cos(cy * 0.4) + t) * 0.3 * audio.energy;
+
+        impulses.forEach(imp => {
+          const age = t - imp.time;
+          if (age < 2) {
+            const d = Math.sqrt((cx - imp.ox)**2 + (cy - imp.oy)**2);
+            const waveFront = age * 9;
+            const hit = Math.abs(d - waveFront);
+            if (hit < 2.5) {
+              z += Math.sin(hit * Math.PI / 2.5) * imp.strength * Math.max(0, 1 - age / 2) * 2.2;
+            }
+          }
+        });
+
+        positions[idx + 2] = z;
+
+        const h = Math.abs(z);
+        const norm = Math.min(h / 5, 1);
+        // Violet → Magenta → Amber gradient
+        if (norm < 0.5) {
+          const n = norm * 2;
+          colors[idx] = 0.55 + n * 0.36;
+          colors[idx+1] = 0.36 + n * 0.11;
+          colors[idx+2] = 0.96 + n * 0.02;
+        } else {
+          const n = (norm - 0.5) * 2;
+          colors[idx] = 0.91 + n * 0.05;
+          colors[idx+1] = 0.47 + n * 0.15;
+          colors[idx+2] = 0.98 - n * 0.94;
+        }
+      }
+    }
+
+    let li = 0;
+    for (let y = 0; y < ROWS; y++) {
+      for (let x = 0; x < COLS; x++) {
+        const pIdx = (y * COLS + x) * 3;
+        const pz = positions[pIdx + 2];
+        const px = positions[pIdx];
+        const py = positions[pIdx + 1];
+        if (x < COLS - 1) {
+          const nIdx = (y * COLS + (x + 1)) * 3;
+          linePositions[li] = px; linePositions[li+1] = py; linePositions[li+2] = pz;
+          linePositions[li+3] = positions[nIdx]; linePositions[li+4] = positions[nIdx+1]; linePositions[li+5] = positions[nIdx+2];
+          li += 6;
+        }
+        if (y < ROWS - 1) {
+          const nIdx = ((y+1) * COLS + x) * 3;
+          linePositions[li] = px; linePositions[li+1] = py; linePositions[li+2] = pz;
+          linePositions[li+3] = positions[nIdx]; linePositions[li+4] = positions[nIdx+1]; linePositions[li+5] = positions[nIdx+2];
+          li += 6;
+        }
+      }
+    }
+
+    pointsObj.geometry.attributes.position.needsUpdate = true;
+    pointsObj.geometry.attributes.color.needsUpdate = true;
+    linesObj.geometry.attributes.position.needsUpdate = true;
+
+    group.rotation.z = t * 0.035;
+    group.rotation.x = -0.5 + Math.sin(t * 0.1) * 0.12;
+  }
+
+  return { setup, cleanup, update };
+})();
+
+// ═══════════════════════════════════════════════════════════
+//  POETRY DATABASE (English main + Traditional Chinese)
+// ═══════════════════════════════════════════════════════════
+const POEMS = {
+  breathOfWords: [
+    {
+      title: 'Hope',
+      author: 'Emily Dickinson',
+      lines: [
+        '"Hope" is the thing with feathers',
+        'That perches in the soul',
+        'And sings the tune without the words',
+        'And never stops at all',
+      ],
+      zh: '「希望」是那有羽翼之物／棲於靈魂深處／唱那無言的旋律／從不停歇',
+    },
+    {
+      title: 'Song of Myself',
+      author: 'Walt Whitman',
+      lines: [
+        'I celebrate myself, and sing myself',
+        'And what I assume you shall assume',
+        'For every atom belonging to me',
+        'As good belongs to you',
+      ],
+      zh: '我歌頌自己，我讚美自己／我所相信的，你也將相信／因為每一粒屬於我的原子／同樣屬於你',
+    },
+  ],
+  soundGalaxy: [
+    {
+      title: 'The Guest House',
+      author: 'Rumi',
+      lines: [
+        'This being human is a guest house',
+        'Every morning a new arrival',
+        'A joy, a depression, a meanness',
+        'Welcome and entertain them all',
+      ],
+      zh: '人身是一間客棧／每日清晨有新客到來／喜悅、沮喪、刻薄／皆當歡迎並款待',
+    },
+    {
+      title: 'Drinking Alone Under the Moon',
+      author: 'Li Bai · 李白',
+      lines: [
+        'A cup of wine, under the flowering trees',
+        'I drink alone, for no friend is near',
+        'Raising my cup I beckon the bright moon',
+        'For her, with my shadow, will make three',
+      ],
+      zh: '花間一壺酒／獨酌無相親／舉杯邀明月／對影成三人',
+    },
+  ],
+  inkInWater: [
+    {
+      title: 'Three Haiku',
+      author: 'Matsuo Bashō',
+      lines: [
+        'An old silent pond',
+        'A frog jumps into the pond',
+        'Splash — silence again',
+        'The light of a candle is transferred to another',
+      ],
+      zh: '古池無聲／青蛙躍入／一聲水響，歸於寂靜／燭光借與他燭',
+    },
+    {
+      title: 'Autumn Evening in the Mountains',
+      author: 'Wang Wei · 王維',
+      lines: [
+        'Empty mountain, no one seen',
+        'Only the echo of voices heard',
+        'Returning light enters the deep forest',
+        'And shines again upon the green moss',
+      ],
+      zh: '空山不見人／但聞人語響／返景入深林／復照青苔上',
+    },
+  ],
+  resonanceField: [
+    {
+      title: 'If You Forget Me',
+      author: 'Pablo Neruda',
+      lines: [
+        'I want you to know one thing',
+        'You know how this is',
+        'If I look at the crystal moon',
+        'At the red branch of the slow autumn',
+      ],
+      zh: '有一件事我要你明白／你知道是什麼樣／若我凝望那水晶明月／望向遲緩秋日的紅枝',
+    },
+    {
+      title: 'Stopping by Woods on a Snowy Evening',
+      author: 'Robert Frost',
+      lines: [
+        'Whose woods these are I think I know',
+        'His house is in the village though',
+        'He will not see me stopping here',
+        'To watch his woods fill up with snow',
+      ],
+      zh: '這些林子的主人，我想我知道／他的屋舍在那村莊／他不會見我在此駐足／望著他的林地被雪填滿',
+    },
+  ],
+};
+
+// ═══════════════════════════════════════════════════════════
+//  TELEPROMPTER SYSTEM
+// ═══════════════════════════════════════════════════════════
+const teleprompter = (() => {
+  const el = document.getElementById('teleprompter');
+  const titleEl = document.getElementById('tpTitle');
+  const authorEl = document.getElementById('tpAuthor');
+  const poemEl = document.getElementById('tpPoem');
+  const zhEl = document.getElementById('tpZh');
+  const idxEl = document.getElementById('tpIdx');
+
+  let currentMode = null;
+  let poemIndex = 0;
+  let lineIndex = 0;
+  let lineElements = [];
+  let lastAutoAdvance = 0;
+
+  function render() {
+    const poems = POEMS[currentMode];
+    if (!poems) return;
+    const poem = poems[poemIndex];
+    titleEl.textContent = poem.title.toUpperCase();
+    authorEl.textContent = '· ' + poem.author;
+    idxEl.textContent = `${poemIndex + 1} / ${poems.length}`;
+    poemEl.innerHTML = '';
+    lineElements = [];
+    poem.lines.forEach((line, i) => {
+      const d = document.createElement('div');
+      d.className = 'tp-line' + (i === lineIndex ? ' active' : '');
+      d.textContent = line;
+      poemEl.appendChild(d);
+      lineElements.push(d);
+    });
+    zhEl.innerHTML = poem.zh;
+  }
+
+  function setMode(mode) {
+    currentMode = mode;
+    poemIndex = 0;
+    lineIndex = 0;
+    render();
+  }
+
+  function nextPoem() {
+    const poems = POEMS[currentMode];
+    poemIndex = (poemIndex + 1) % poems.length;
+    lineIndex = 0;
+    render();
+  }
+  function prevPoem() {
+    const poems = POEMS[currentMode];
+    poemIndex = (poemIndex - 1 + poems.length) % poems.length;
+    lineIndex = 0;
+    render();
+  }
+  function nextLine() {
+    if (!currentMode) return;
+    const poems = POEMS[currentMode];
+    const total = poems[poemIndex].lines.length;
+    if (lineIndex < total - 1) {
+      lineIndex++;
+      lineElements.forEach((el, i) => el.classList.toggle('active', i === lineIndex));
+    } else {
+      nextPoem();
+    }
+  }
+  function show() { el.classList.add('visible'); }
+  function hide() { el.classList.remove('visible'); }
+
+  function tick(audio, now) {
+    if (audio.loudnessStreak > 50 && now - lastAutoAdvance > 2400) {
+      nextLine();
+      lastAutoAdvance = now;
+    }
+  }
+
+  document.getElementById('tpNext').addEventListener('click', nextPoem);
+  document.getElementById('tpPrev').addEventListener('click', prevPoem);
+  document.getElementById('tpAdvance').addEventListener('click', () => {
+    nextLine();
+    lastAutoAdvance = performance.now();
+  });
+
+  return { setMode, show, hide, tick, nextLine };
+})();
+
+// ═══════════════════════════════════════════════════════════
+//  FLOATING POEM FRAGMENTS
+// ═══════════════════════════════════════════════════════════
+const textSystem = (() => {
+  const container = document.getElementById('poemContainer');
+  let activeTexts = [];
+  let lastSpawn = 0;
+
+  const fragments = {
+    breathOfWords: [
+      { en: 'Every breath is a poem', zh: '一呼一吸 皆是詩' },
+      { en: 'Words awaken from silence', zh: '文字自靜默中甦醒' },
+      { en: 'Language blooms in the air', zh: '語言在空氣中綻放' },
+      { en: 'Sound is invisible color', zh: '聲音是無形之色' },
+      { en: 'Listen — the silence sings', zh: '靜聽 寂靜亦歌' },
+      { en: 'A voice becomes starlight', zh: '聲音化為星光' },
+    ],
+    soundGalaxy: [
+      { en: 'Galaxies born in your voice', zh: '星系誕於你的聲音' },
+      { en: 'The universe, an eternal symphony', zh: '宇宙是一場永恆的交響' },
+      { en: 'Every note, a star', zh: '每個音符 都是一顆星' },
+      { en: 'Melody weaves the Milky Way', zh: '旋律編織銀河' },
+      { en: 'Time flows through vibration', zh: '時間在振動中流淌' },
+      { en: 'We are made of sound', zh: '我們由聲音所塑' },
+    ],
+    inkInWater: [
+      { en: 'Ink follows sound — intent precedes brush', zh: '墨隨聲動 意在筆先' },
+      { en: 'Between ink and water, worlds expand', zh: '水墨之間 天地寬' },
+      { en: 'Hear thunder in the silence', zh: '無聲處聽驚雷' },
+      { en: 'Poetry lives between light and dark', zh: '濃淡之間 皆是詩' },
+      { en: 'A stroke, a breath, a life', zh: '一筆 一息 一世' },
+      { en: 'Stillness blooms in motion', zh: '寂靜在動中綻放' },
+    ],
+    resonanceField: [
+      { en: 'Vibration is the language of all things', zh: '振動是萬物的語言' },
+      { en: 'Resonance connects invisible threads', zh: '共振連繫無形之絲' },
+      { en: 'Frequency shapes reality', zh: '頻率塑造現實' },
+      { en: 'Sound waves traverse space and time', zh: '聲波穿越時空' },
+      { en: 'Find yourself in resonance', zh: '於共鳴中尋找自己' },
+      { en: 'Listen — the world breathes', zh: '靜聽 世界呼吸' },
+    ],
+  };
+
+  function spawn(mode, audio) {
+    const now = performance.now();
+    if (now - lastSpawn < 3500) return;
+    if (activeTexts.length >= 3) return;
+    if (audio.volume < 0.15) return;
+
+    const pool = fragments[mode];
+    if (!pool) return;
+    const entry = pool[Math.floor(Math.random() * pool.length)];
+
+    const el = document.createElement('div');
+    el.className = 'poem-text';
+    el.innerHTML = `<span class="poem-en">${entry.en}</span><span class="poem-zh">${entry.zh}</span>`;
+    el.style.left = (12 + Math.random() * 72) + '%';
+    el.style.top = (25 + Math.random() * 45) + '%';
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(20px) scale(0.96)';
+    container.appendChild(el);
+
+    requestAnimationFrame(() => {
+      el.style.opacity = String(0.5 + audio.volume * 0.5);
+      el.style.transform = 'translateY(0) scale(1)';
+    });
+
+    const life = 3500 + Math.random() * 2000;
+    const ref = { el, birth: now };
+    activeTexts.push(ref);
+    lastSpawn = now;
+
+    setTimeout(() => {
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(-15px) scale(1.03)';
+      setTimeout(() => {
+        el.remove();
+        const idx = activeTexts.indexOf(ref);
+        if (idx !== -1) activeTexts.splice(idx, 1);
+      }, 800);
+    }, life);
+  }
+
+  return { spawn };
+})();
+
+// ═══════════════════════════════════════════════════════════
+//  GIF RECORDER
+// ═══════════════════════════════════════════════════════════
+const gifRecorder = (() => {
+  const btn = document.getElementById('recordBtn');
+  const status = document.getElementById('gifStatus');
+  const statusText = document.getElementById('gifStatusText');
+  const progressBar = document.getElementById('gifProgressBar');
+
+  let gif = null;
+  let recording = false;
+  let frameCount = 0;
+  const MAX_FRAMES = 90; // 6s at 15fps
+  const FPS = 15;
+  let lastCapture = 0;
+  let captureCanvas, captureCtx;
+
+  function ensureCanvas() {
+    if (!captureCanvas) {
+      captureCanvas = document.createElement('canvas');
+      captureCanvas.width = 720;
+      captureCanvas.height = 405;
+      captureCtx = captureCanvas.getContext('2d');
+    }
+  }
+
+  function start() {
+    if (recording) return;
+    if (typeof GIF === 'undefined') {
+      alert('GIF library failed to load. Please retry.');
+      return;
+    }
+    ensureCanvas();
+    gif = new GIF({
+      workers: 2,
+      quality: 10,
+      width: 720,
+      height: 405,
+      workerScript: 'https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.worker.js',
+      transparent: null,
+    });
+    gif.on('progress', (p) => {
+      progressBar.style.width = (p * 100) + '%';
+      statusText.textContent = `Encoding ${Math.round(p * 100)}%`;
+    });
+    gif.on('finished', (blob) => {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `sound-poetry-${Date.now()}.gif`;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      status.classList.remove('visible');
+      btn.classList.remove('recording');
+      statusText.textContent = 'Recording';
+      progressBar.style.width = '0%';
+    });
+    recording = true;
+    frameCount = 0;
+    lastCapture = 0;
+    btn.classList.add('recording');
+    status.classList.add('visible');
+    statusText.textContent = `Recording 0/${MAX_FRAMES}`;
+  }
+
+  function stop() {
+    if (!recording) return;
+    recording = false;
+    statusText.textContent = 'Encoding...';
+    gif.render();
+  }
+
+  function tick(now) {
+    if (!recording) return;
+    if (now - lastCapture < 1000 / FPS) return;
+    lastCapture = now;
+    try {
+      captureCtx.drawImage(renderer.domElement, 0, 0, captureCanvas.width, captureCanvas.height);
+      gif.addFrame(captureCanvas, { copy: true, delay: 1000 / FPS });
+      frameCount++;
+      const p = frameCount / MAX_FRAMES;
+      progressBar.style.width = (p * 100) + '%';
+      statusText.textContent = `Recording ${frameCount}/${MAX_FRAMES}`;
+      if (frameCount >= MAX_FRAMES) stop();
+    } catch (e) {
+      console.error(e);
+      recording = false;
+      status.classList.remove('visible');
+      btn.classList.remove('recording');
+    }
+  }
+
+  btn.addEventListener('click', () => { recording ? stop() : start(); });
+
+  return { tick, isRecording: () => recording };
+})();
+
+// ═══════════════════════════════════════════════════════════
+//  MODE MANAGER
+// ═══════════════════════════════════════════════════════════
+const modeNames = {
+  breathOfWords: { en: 'Breath of Words', zh: '詞之呼吸' },
+  soundGalaxy: { en: 'Sound Galaxy', zh: '聲之星雲' },
+  inkInWater: { en: 'Ink in Water', zh: '墨入水' },
+  resonanceField: { en: 'Resonance Field', zh: '共振場' },
+};
+const modes = { breathOfWords, soundGalaxy, inkInWater, resonanceField };
+let currentMode = null;
+
+const $flash = document.getElementById('flash');
+function triggerFlash() {
+  $flash.classList.add('active');
+  setTimeout(() => $flash.classList.remove('active'), 120);
+}
+
+function switchMode(name) {
+  if (name === currentMode) return;
+  if (currentMode && modes[currentMode]) modes[currentMode].cleanup(scene);
+  modes[name].setup(scene);
+  currentMode = name;
+  bgm.switchTo(name);
+  triggerFlash();
+
+  document.querySelectorAll('.mode-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.mode === name);
+  });
+  document.getElementById('modeNameEn').textContent = modeNames[name].en;
+  document.getElementById('modeNameZh').textContent = modeNames[name].zh;
+
+  teleprompter.setMode(name);
+
+  // Adjust bloom / fog per mode
+  if (name === 'inkInWater') {
+    bloomPass.strength = 0.8; bloomPass.threshold = 0.7;
+    scene.fog.density = 0.01; scene.background.setHex(0x0A0614);
+  } else if (name === 'soundGalaxy') {
+    bloomPass.strength = 0.7; bloomPass.threshold = 0.75;
+    scene.fog.density = 0.005; scene.background.setHex(0x05030D);
+  } else if (name === 'resonanceField') {
+    bloomPass.strength = 0.6; bloomPass.threshold = 0.8;
+    scene.fog.density = 0.008; scene.background.setHex(0x080515);
+  } else {
+    bloomPass.strength = 0.65; bloomPass.threshold = 0.8;
+    scene.fog.density = 0.009; scene.background.setHex(0x0A0614);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  MAIN APPLICATION
+// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
+//  BGM ENGINE — Generative ambient soundscapes per mode
+// ═══════════════════════════════════════════════════════════
+class BGMEngine {
+  constructor() {
+    this.ctx = null;
+    this.master = null;
+    this.reverb = null;
+    this._nodes = [];
+    this._timers = [];
+    this._gen = 0;
+    this.GAIN = 0.14;
+    this.muted = false;
+  }
+
+  setup(ctx) {
+    this.ctx = ctx;
+    // Convolution reverb (impulse response)
+    this.reverb = this._ir(5.5);
+    // Master gain -> destination
+    this.master = ctx.createGain();
+    this.master.gain.value = 0;
+    this.reverb.connect(this.master);
+    this.master.connect(ctx.destination);
+  }
+
+  _ir(sec) {
+    const s = this.ctx.sampleRate, len = Math.floor(s * sec);
+    const buf = this.ctx.createBuffer(2, len, s);
+    for (let c = 0; c < 2; c++) {
+      const d = buf.getChannelData(c);
+      for (let i = 0; i < len; i++)
+        d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 1.8);
+    }
+    const conv = this.ctx.createConvolver();
+    conv.buffer = buf;
+    return conv;
+  }
+
+  // Create oscillator + gain, connect to dry (master) and wet (reverb) paths
+  _osc(hz, type, gain, detune = 0) {
+    const osc = this.ctx.createOscillator();
+    const g = this.ctx.createGain();
+    osc.type = type;
+    osc.frequency.value = hz;
+    osc.detune.value = detune;
+    g.gain.value = gain;
+    osc.connect(g);
+    g.connect(this.master);  // dry
+    g.connect(this.reverb);  // wet -> reverb -> master
+    osc.start();
+    this._nodes.push(osc, g);
+    return { osc, g };
+  }
+
+  _t(fn, ms) {
+    const id = setTimeout(fn, ms);
+    this._timers.push(id);
+    return id;
+  }
+
+  _clear() {
+    this._timers.forEach(clearTimeout);
+    this._timers = [];
+    const ns = this._nodes.splice(0);
+    ns.forEach(n => { try { if (n.stop) n.stop(); n.disconnect(); } catch(e) {} });
+  }
+
+  switchTo(mode) {
+    if (!this.ctx || this.muted) return;
+    const gen = ++this._gen;
+    const ramp = (v, t) => {
+      const now = this.ctx.currentTime;
+      this.master.gain.cancelScheduledValues(now);
+      this.master.gain.linearRampToValueAtTime(v, now + t);
+    };
+    ramp(0, 1.5);
+    this._t(() => {
+      if (this._gen !== gen) return;
+      this._clear();
+      const fn = {
+        breathOfWords: '_breathOfWords',
+        soundGalaxy:   '_soundGalaxy',
+        inkInWater:    '_inkInWater',
+        resonanceField:'_resonanceField'
+      }[mode];
+      if (fn) this[fn]();
+      ramp(this.GAIN, 3.5);
+    }, 1600);
+  }
+
+  toggleMute() {
+    if (!this.ctx) return;
+    this.muted = !this.muted;
+    const now = this.ctx.currentTime;
+    this.master.gain.cancelScheduledValues(now);
+    this.master.gain.linearRampToValueAtTime(
+      this.muted ? 0 : this.GAIN, now + 1.2
+    );
+    return this.muted;
+  }
+
+  // ――― Mode 1: Breath of Words ―――
+  // C major pentatonic — slow arpeggios, gentle pad, breathing rhythm
+  _breathOfWords() {
+    // Soft sustained chord: C3 E3 G3 C4
+    this._osc(130.81, 'sine', 0.055);           // C3
+    this._osc(164.81, 'sine', 0.045);           // E3
+    this._osc(196.00, 'sine', 0.045);           // G3
+    this._osc(261.63, 'sine', 0.030);           // C4
+    this._osc(130.81, 'triangle', 0.025, 8);    // warm detuned layer
+    this._osc(196.00, 'triangle', 0.018, -6);   // G3 detuned
+    // Slow melodic arpeggios
+    const mel = [261.63, 329.63, 392.00, 523.25, 440.00, 392.00, 329.63, 261.63, 196.00];
+    let idx = 0;
+    const arp = () => {
+      if (!this._nodes.length) return;
+      const { g } = this._osc(mel[idx % mel.length], 'sine', 0);
+      const now = this.ctx.currentTime;
+      g.gain.setTargetAtTime(0.055, now, 0.06);
+      g.gain.setTargetAtTime(0, now + 2.2, 0.8);
+      idx++;
+      this._t(arp, 1800 + Math.random() * 900);
+    };
+    this._t(arp, 1000);
+  }
+
+  // ――― Mode 2: Sound Galaxy ―――
+  // Cosmic harmonic pads — sub bass + high register sparkles, vast & sparse
+  _soundGalaxy() {
+    // Sub harmonic base
+    this._osc(55.00, 'sine', 0.08);             // A1 sub
+    this._osc(110.00, 'sine', 0.05, 2);         // A2 slight detune
+    this._osc(165.00, 'sine', 0.03, -3);        // E3
+    this._osc(220.00, 'sine', 0.025);           // A3
+    // High shimmer layer
+    this._osc(880.00, 'sine', 0.020);           // A5
+    this._osc(1320.00, 'sine', 0.012, 4);       // E6
+    this._osc(1760.00, 'sine', 0.008, -5);      // A6
+    // Sparse stellar sparkles
+    const stars = [1046.50, 1174.66, 1318.51, 1568.00, 1760.00, 2093.00, 2349.32];
+    const spark = () => {
+      if (!this._nodes.length) return;
+      const { g } = this._osc(stars[Math.floor(Math.random() * stars.length)], 'sine', 0);
+      const now = this.ctx.currentTime;
+      g.gain.setTargetAtTime(0.030, now, 0.12);
+      g.gain.setTargetAtTime(0, now + 5, 2.5);
+      this._t(spark, 2800 + Math.random() * 5000);
+    };
+    this._t(spark, 1500);
+    // Slow LFO tremolo on a mid pad
+    const { g: tremG } = this._osc(329.63, 'sine', 0.025);
+    const lfo = this.ctx.createOscillator();
+    const lfoG = this.ctx.createGain();
+    lfo.frequency.value = 0.08;
+    lfoG.gain.value = 0.015;
+    lfo.connect(lfoG);
+    lfoG.connect(tremG.gain);
+    lfo.start();
+    this._nodes.push(lfo, lfoG);
+  }
+
+  // ――― Mode 3: Ink in Water ―――
+  // Low D drone + water-drop pings — meditative, Japanese-inspired
+  _inkInWater() {
+    // D minor drone
+    this._osc(73.42, 'sine', 0.090);            // D2 fundamental
+    this._osc(73.42, 'sine', 0.055, 5);         // D2 detuned (shimmer)
+    this._osc(73.42, 'sine', 0.035, -5);
+    this._osc(110.00, 'sine', 0.050);           // A2 perfect fifth
+    this._osc(146.83, 'sine', 0.030);           // D3 octave
+    this._osc(220.00, 'sine', 0.018);           // A3
+    // Very slow LFO breath on drone
+    const { g: droneG } = this._osc(73.42, 'triangle', 0.020, 2);
+    const lfo = this.ctx.createOscillator();
+    const lfoG = this.ctx.createGain();
+    lfo.frequency.value = 0.04;  // one breath every 25 seconds
+    lfoG.gain.value = 0.012;
+    lfo.connect(lfoG);
+    lfoG.connect(droneG.gain);
+    lfo.start();
+    this._nodes.push(lfo, lfoG);
+    // Water drop pings (pure sine with fast attack, long decay)
+    const pings = [587.33, 659.25, 783.99, 880.00, 1046.50, 1174.66, 1318.51];
+    const drop = () => {
+      if (!this._nodes.length) return;
+      const { g } = this._osc(pings[Math.floor(Math.random() * pings.length)], 'sine', 0);
+      const now = this.ctx.currentTime;
+      g.gain.setTargetAtTime(0.045, now, 0.008);   // instant attack
+      g.gain.setTargetAtTime(0, now + 4.5, 1.8);   // long natural decay
+      this._t(drop, 3500 + Math.random() * 6000);
+    };
+    this._t(drop, 800);
+    this._t(drop, 4000);
+  }
+
+  // ――― Mode 4: Resonance Field ―――
+  // Harmonic series on A2 — rich overtones, deep resonance, slowly pulsing
+  _resonanceField() {
+    const fund = 110; // A2 fundamental
+    // Natural harmonic series
+    [1, 2, 3, 4, 5, 6, 7, 8, 9, 11].forEach(h => {
+      this._osc(fund * h, 'sine', 0.065 / h, (Math.random() - 0.5) * 2);
+    });
+    // Very slow LFO on fundamental volume for breathing effect
+    const { g: fundG } = this._osc(fund, 'sine', 0.020);
+    const lfo = this.ctx.createOscillator();
+    const lfoGain = this.ctx.createGain();
+    lfo.frequency.value = 0.06;  // ~16-second cycle
+    lfoGain.gain.value = 0.015;
+    lfo.connect(lfoGain);
+    lfoGain.connect(fundG.gain);
+    lfo.start();
+    this._nodes.push(lfo, lfoGain);
+    // Slow stochastic harmonic pulses
+    const pulse = () => {
+      if (!this._nodes.length) return;
+      const h = [3, 4, 5, 6, 7, 9][Math.floor(Math.random() * 6)];
+      const { g } = this._osc(fund * h, 'sine', 0, (Math.random()-0.5)*3);
+      const now = this.ctx.currentTime;
+      g.gain.setTargetAtTime(0.040, now, 0.5);
+      g.gain.setTargetAtTime(0, now + 7, 3.5);
+      this._t(pulse, 4500 + Math.random() * 5000);
+    };
+    this._t(pulse, 2500);
+    this._t(pulse, 7000);
+  }
+}
+
+const bgm = new BGMEngine();
+const audio = new AudioEngine();
+let appStarted = false;
+
+const $landing = document.getElementById('landing');
+const $permModal = document.getElementById('permissionModal');
+const $loader = document.getElementById('loader');
+const $scanlines = document.getElementById('scanlines');
+const $vignette = document.getElementById('vignette');
+const $modeIndicator = document.getElementById('modeIndicator');
+const $bpmDisplay = document.getElementById('bpmDisplay');
+const $audioStats = document.getElementById('audioStats');
+const $modeBar = document.getElementById('modeBar');
+const $ctrlCluster = document.getElementById('ctrlCluster');
+const $helpBtn = document.getElementById('helpBtn');
+const $helpPanel = document.getElementById('helpPanel');
+const $screenshotBtn = document.getElementById('screenshotBtn');
+const corners = [document.getElementById('c1'), document.getElementById('c2'), document.getElementById('c3'), document.getElementById('c4')];
+
+document.getElementById('startBtn').addEventListener('click', () => {
+  $landing.classList.add('hidden');
+  setTimeout(() => $permModal.classList.add('visible'), 900);
+});
+
+document.getElementById('permissionBtn').addEventListener('click', async () => {
+  await audio.init(false);
+  $permModal.classList.remove('visible');
+  startExperience();
+});
+document.getElementById('permissionSkip').addEventListener('click', async () => {
+  await audio.init(true);
+  $permModal.classList.remove('visible');
+  startExperience();
+});
+
+function startExperience() {
+  appStarted = true;
+  bgm.setup(audio.audioCtx);
+  $scanlines.classList.add('visible');
+  $vignette.classList.add('visible');
+  corners.forEach(c => c.classList.add('visible'));
+
+  setTimeout(() => {
+    $modeIndicator.classList.add('visible');
+    $bpmDisplay.classList.add('visible');
+    $audioStats.classList.add('visible');
+    $modeBar.classList.add('visible');
+    $ctrlCluster.classList.add('visible');
+    teleprompter.show();
+  }, 300);
+
+  switchMode('breathOfWords');
+}
+
+document.querySelectorAll('.mode-btn').forEach(btn => {
+  btn.addEventListener('click', () => switchMode(btn.dataset.mode));
+});
+
+document.getElementById('bgmBtn').addEventListener('click', () => {
+  const muted = bgm.toggleMute();
+  document.getElementById('bgmIcon').innerHTML = muted ? '&#9834;&#x0338;' : '&#9835;';
+  document.getElementById('bgmBtn').style.opacity = muted ? '0.4' : '1';
+});
+
+$helpBtn.addEventListener('click', () => $helpPanel.classList.toggle('visible'));
+$screenshotBtn.addEventListener('click', () => {
+  const link = document.createElement('a');
+  link.download = 'sound_poetry_' + Date.now() + '.png';
+  link.href = renderer.domElement.toDataURL('image/png');
+  link.click();
+});
+
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  composer.setSize(window.innerWidth, window.innerHeight);
+});
+
+// ═══════════════════════════════════════════════════════════
+//  ANIMATION LOOP
+// ═══════════════════════════════════════════════════════════
+let frame = 0;
+function animate() {
+  requestAnimationFrame(animate);
+  const t = clock.getElapsedTime();
+  const dt = clock.getDelta() || 0.016;
+  frame++;
+
+  if (appStarted) {
+    audio.update();
+
+    // Light system
+    violetLight.intensity = 2.0 + audio.treble * 2.5;
+    magentaLight.intensity = 1.8 + audio.bass * 3;
+    amberLight.intensity = 1.4 + audio.mid * 2;
+    cyanLight.intensity = 1.0 + audio.treble * 2;
+    violetLight.position.x = Math.cos(t * 0.2) * 15;
+    violetLight.position.z = Math.sin(t * 0.2) * 15;
+    magentaLight.position.x = Math.cos(t * 0.15 + 2) * 12;
+    magentaLight.position.z = Math.sin(t * 0.15 + 2) * 12;
+    amberLight.position.y = 8 + Math.sin(t * 0.3) * 4;
+
+    // Camera (mouse parallax + slow drift)
+    camera.position.x += (mouseX * 2 + Math.sin(t * 0.05) * 1.5 - camera.position.x) * 0.02;
+    camera.position.y += (mouseY * 1 + Math.cos(t * 0.04) * 1.0 - camera.position.y) * 0.02;
+    camera.lookAt(0, 0, 0);
+
+    if (currentMode && modes[currentMode]) modes[currentMode].update(t, dt, audio);
+
+    if (frame % 12 === 0) textSystem.spawn(currentMode, audio);
+    teleprompter.tick(audio, performance.now());
+    gifRecorder.tick(performance.now());
+
+    // Update UI bars
+    const bars = ['bar1', 'bar2', 'bar3', 'bar4', 'bar5'];
+    for (let i = 0; i < 5; i++) {
+      document.getElementById(bars[i]).style.height = Math.min(100, audio.bands[i] * 100) + '%';
+    }
+    document.getElementById('bpmNum').textContent = audio.bpm > 0 ? audio.bpm : '—';
+    document.getElementById('volNum').textContent = Math.round(audio.volume * 100);
+
+    // Dynamic vignette
+    $vignette.style.opacity = Math.max(0.5, 1 - audio.volume * 0.8);
+  }
+
+  composer.render();
+}
+
+setTimeout(() => { $loader.classList.add('hidden'); }, 1200);
+animate();
+
+</script>
+</body>
+</html>

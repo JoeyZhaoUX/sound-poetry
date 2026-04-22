@@ -1,0 +1,2679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1920">
+<title>SoundPoetry — Interactive Visual Poetry · Case Study</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,500;1,700&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Noto+Serif+TC:wght@400;500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   DESIGN SYSTEM — Ink & Frequency
+   Editorial / Gallery Catalog / Independent Art Publication
+   NO gradients. NO glass. NO blur. Flat, typographic, raw.
+   ============================================================ */
+:root {
+  --c-black: #0C0C0C;
+  --c-ink: #1A1A1A;
+  --c-charcoal: #2A2A2A;
+  --c-graphite: #444;
+  --c-stone: #777;
+  --c-silver: #AAA;
+  --c-fog: #D4D0C8;
+  --c-cream: #F2EDE4;
+  --c-paper: #FAF8F4;
+  --c-white: #FFFFFF;
+  --c-vermillion: #E63B2E;
+  --c-gold: #C8A850;
+  --c-teal: #2A7A6E;
+  --c-indigo: #3B4D8C;
+  --f-display: 'Playfair Display', Georgia, serif;
+  --f-mono: 'Space Mono', 'Courier New', monospace;
+  --f-body: 'EB Garamond', Georgia, serif;
+  --f-zh: 'Noto Serif TC', serif;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { overflow-x: hidden; }
+body {
+  font-family: var(--f-body);
+  background: var(--c-black);
+  color: var(--c-ink);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  line-height: 1.6;
+}
+img { max-width: 100%; display: block; object-fit: cover; }
+a { color: inherit; text-decoration: none; }
+
+/* Page system 1920×1080 */
+.page {
+  width: 1920px;
+  height: 1080px;
+  position: relative;
+  overflow: hidden;
+  margin: 0 auto 40px;
+  background: var(--c-paper);
+  flex-shrink: 0;
+}
+.page--dark {
+  background: var(--c-black);
+  color: var(--c-cream);
+}
+.page-num {
+  position: absolute;
+  bottom: 36px;
+  right: 56px;
+  font-family: var(--f-mono);
+  font-size: 11px;
+  color: var(--c-silver);
+  letter-spacing: 3px;
+  z-index: 10;
+}
+.page--dark .page-num { color: var(--c-graphite); }
+
+.page-inner {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  padding: 72px 96px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Section headers */
+.section-num {
+  font-family: var(--f-mono);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--c-vermillion);
+  margin-bottom: 12px;
+}
+.page--dark .section-num { color: var(--c-vermillion); }
+.section-title {
+  font-family: var(--f-display);
+  font-size: 52px;
+  font-weight: 400;
+  letter-spacing: -1px;
+  line-height: 1.1;
+  color: var(--c-ink);
+  margin-bottom: 16px;
+}
+.page--dark .section-title { color: var(--c-cream); }
+.section-title em {
+  font-style: italic;
+  font-weight: 400;
+}
+.section-rule {
+  width: 64px;
+  height: 1px;
+  background: var(--c-vermillion);
+  margin-bottom: 16px;
+}
+.section-desc {
+  font-family: var(--f-body);
+  font-size: 18px;
+  color: var(--c-graphite);
+  max-width: 680px;
+  line-height: 1.75;
+  font-weight: 400;
+}
+.page--dark .section-desc { color: var(--c-silver); }
+
+/* Hairline rules */
+.hr-thin {
+  width: 100%;
+  height: 1px;
+  background: var(--c-fog);
+}
+.page--dark .hr-thin { background: var(--c-charcoal); }
+
+/* Mono labels */
+.label {
+  font-family: var(--f-mono);
+  font-size: 10px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--c-stone);
+}
+.page--dark .label { color: var(--c-graphite); }
+.label--red { color: var(--c-vermillion); }
+
+/* ============ PAGE 1 — HERO (dark) ============ */
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  height: 100%;
+  position: relative;
+}
+.hero-left {
+  background: var(--c-black);
+  padding: 80px 72px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+}
+.hero-left::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 1px;
+  height: 100%;
+  background: var(--c-charcoal);
+}
+.hero-badge {
+  font-family: var(--f-mono);
+  font-size: 10px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--c-stone);
+  margin-bottom: 48px;
+}
+.hero-title {
+  font-family: var(--f-display);
+  font-size: 128px;
+  font-weight: 400;
+  line-height: 0.92;
+  letter-spacing: -4px;
+  color: var(--c-cream);
+  margin-bottom: 16px;
+}
+.hero-title em {
+  font-style: italic;
+  color: var(--c-vermillion);
+}
+.hero-sub-zh {
+  font-family: var(--f-zh);
+  font-size: 22px;
+  font-weight: 400;
+  color: var(--c-stone);
+  letter-spacing: 8px;
+  margin-bottom: 40px;
+}
+.hero-lede {
+  font-family: var(--f-body);
+  font-size: 18px;
+  line-height: 1.8;
+  color: var(--c-silver);
+  max-width: 480px;
+  margin-bottom: 48px;
+}
+.hero-meta-row {
+  display: flex;
+  gap: 40px;
+  padding-top: 32px;
+  border-top: 1px solid var(--c-charcoal);
+}
+.hero-meta-item { display: flex; flex-direction: column; gap: 6px; }
+.hero-meta-item .k {
+  font-family: var(--f-mono);
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: var(--c-graphite);
+  text-transform: uppercase;
+}
+.hero-meta-item .v {
+  font-family: var(--f-mono);
+  font-size: 13px;
+  color: var(--c-cream);
+  font-weight: 400;
+}
+.hero-right {
+  background: var(--c-ink);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+/* Waveform art — CSS-only generative decoration */
+.wave-art {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.wave-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(230, 59, 46, 0.12);
+}
+.wave-ring:nth-child(1) { width: 200px; height: 200px; }
+.wave-ring:nth-child(2) { width: 340px; height: 340px; border-color: rgba(200,168,80,0.08); }
+.wave-ring:nth-child(3) { width: 480px; height: 480px; border-color: rgba(230,59,46,0.06); }
+.wave-ring:nth-child(4) { width: 620px; height: 620px; border-color: rgba(255,255,255,0.03); }
+.wave-ring:nth-child(5) { width: 760px; height: 760px; border-color: rgba(255,255,255,0.02); }
+.wave-center {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--c-vermillion);
+  position: relative;
+  z-index: 2;
+}
+.hero-poem {
+  position: absolute;
+  bottom: 80px;
+  right: 56px;
+  max-width: 280px;
+  font-family: var(--f-body);
+  font-style: italic;
+  font-size: 18px;
+  color: rgba(242,237,228,0.35);
+  line-height: 1.6;
+  text-align: right;
+}
+.hero-poem .zh {
+  font-family: var(--f-zh);
+  font-style: normal;
+  font-size: 13px;
+  color: rgba(242,237,228,0.2);
+  display: block;
+  margin-top: 10px;
+  letter-spacing: 4px;
+}
+.hero-cta-row {
+  display: flex;
+  gap: 20px;
+  margin-top: 32px;
+}
+.hero-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 28px;
+  background: var(--c-vermillion);
+  color: var(--c-white);
+  font-family: var(--f-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  transition: opacity .2s;
+}
+.hero-cta:hover { opacity: 0.85; }
+.hero-cta-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 28px;
+  border: 1px solid var(--c-charcoal);
+  color: var(--c-stone);
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  transition: border-color .2s;
+}
+.hero-cta-ghost:hover { border-color: var(--c-silver); }
+.hero-marquee {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 18px 0;
+  border-top: 1px solid var(--c-charcoal);
+  overflow: hidden;
+  white-space: nowrap;
+  z-index: 3;
+}
+.hero-marquee-track {
+  display: flex;
+  gap: 48px;
+  animation: marquee 50s linear infinite;
+  font-family: var(--f-display);
+  font-style: italic;
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--c-graphite);
+}
+.hero-marquee-track span { display: inline-flex; align-items: center; gap: 20px; }
+.hero-marquee-track span::after { content: '—'; color: var(--c-charcoal); font-style: normal; }
+@keyframes marquee { to { transform: translateX(-50%); } }
+
+/* ============ PAGE 2 — OVERVIEW (light) ============ */
+.overview-grid {
+  display: grid;
+  grid-template-columns: 380px 1px 1fr;
+  gap: 0;
+  margin-top: 22px;
+  flex: 1;
+}
+.overview-sidebar {
+  padding-right: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.overview-divider {
+  background: var(--c-fog);
+}
+.overview-main {
+  padding-left: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.ov-card {
+  padding: 9px 0;
+  border-bottom: 1px solid var(--c-fog);
+}
+.ov-card:last-child { border-bottom: none; }
+.ov-card-title {
+  font-family: var(--f-mono);
+  font-size: 9px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--c-vermillion);
+  margin-bottom: 6px;
+}
+.ov-card-text {
+  font-family: var(--f-body);
+  font-size: 12px;
+  color: var(--c-graphite);
+  line-height: 1.45;
+}
+.ov-card-text strong { color: var(--c-ink); font-weight: 600; }
+
+.insight-block {
+  padding: 14px 18px;
+  border-left: 3px solid var(--c-vermillion);
+  background: rgba(230,59,46,0.03);
+  position: relative;
+}
+.insight-block .insight-num {
+  font-family: var(--f-display);
+  font-size: 28px;
+  font-weight: 400;
+  color: var(--c-vermillion);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.insight-block .insight-text {
+  font-family: var(--f-body);
+  font-size: 12px;
+  color: var(--c-graphite);
+  line-height: 1.45;
+}
+.insight-block .insight-text strong { color: var(--c-ink); font-weight: 600; }
+.insight-block .source {
+  font-family: var(--f-mono);
+  font-size: 9px;
+  color: var(--c-stone);
+  letter-spacing: 2px;
+  margin-top: 4px;
+  text-transform: uppercase;
+}
+
+.metric-strip {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 0;
+  border-top: 1px solid var(--c-fog);
+  border-bottom: 1px solid var(--c-fog);
+  margin-top: auto;
+}
+.metric-cell {
+  padding: 12px 12px;
+  text-align: center;
+  border-right: 1px solid var(--c-fog);
+}
+.metric-cell:last-child { border-right: none; }
+.metric-cell .mv {
+  font-family: var(--f-display);
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--c-ink);
+  line-height: 1;
+}
+.metric-cell .ml {
+  font-family: var(--f-mono);
+  font-size: 9px;
+  color: var(--c-stone);
+  letter-spacing: 2px;
+  margin-top: 6px;
+  text-transform: uppercase;
+}
+.panel-art {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+.panel-art::before,
+.panel-art::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.panel-art::before {
+  background-image: var(--panel-image);
+  background-size: cover;
+  background-position: center;
+  opacity: var(--panel-opacity, 0.24);
+  transform: scale(1.05);
+  transition: opacity 0.4s ease;
+}
+.panel-art::after {
+  background: var(--panel-wash, linear-gradient(160deg, rgba(250,248,244,0.48), rgba(250,248,244,0.68)));
+}
+.panel-art > * {
+  position: relative;
+  z-index: 1;
+}
+.panel-art--dark::after {
+  background: var(--panel-wash, linear-gradient(160deg, rgba(12,12,12,0.52), rgba(12,12,12,0.72)));
+}
+.overview-visual-mosaic {
+  display: grid;
+  grid-template-columns: 1.35fr 0.85fr 0.85fr 0.85fr 0.85fr;
+  gap: 8px;
+  margin: 10px 0 10px;
+  height: 86px;
+}
+.ov-media {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--c-fog);
+  background: var(--c-white);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 12px;
+}
+.ov-media::after {
+  content: attr(data-label);
+  position: static;
+  font-family: var(--f-mono);
+  font-size: 8px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--c-ink);
+  background: rgba(250,248,244,0.88);
+  border: 1px solid var(--c-fog);
+  padding: 5px 8px;
+  width: fit-content;
+}
+.overview-sidebar .panel-art::before,
+.overview-sidebar .panel-art::after,
+.overview-main .panel-art::before,
+.overview-main .panel-art::after {
+  display: none;
+}
+.overview-sidebar .ov-card {
+  background: #F7F4EE;
+}
+.overview-sidebar .ov-card:nth-child(2) { background: #F3EFE7; }
+.overview-sidebar .ov-card:nth-child(3) { background: #F0ECE3; }
+.overview-sidebar .ov-card:nth-child(4) { background: #ECE7DD; }
+.overview-main .insight-block:nth-child(1) { background: #F7F1E8; }
+.overview-main .insight-block:nth-child(2) { background: #F4EFE7; }
+.overview-main .insight-block:nth-child(3) { background: #F0ECE3; }
+.ov-media:nth-child(1) {
+  background: #E9E2D6;
+  border-color: #D7CDBD;
+}
+.ov-media:nth-child(2) {
+  background: #E0D8CA;
+  border-color: #CFC2AF;
+}
+.ov-media:nth-child(3) {
+  background: #D3C9BC;
+  border-color: #BBAE9A;
+}
+.ov-media:nth-child(4) {
+  background: #C5B9A9;
+  border-color: #AB9D88;
+}
+.ov-media:nth-child(5) {
+  background: #B7A994;
+  border-color: #9B8B75;
+}
+
+/* ============ PAGE 3 — RESEARCH (dark) ============ */
+.research-grid {
+  display: grid;
+  grid-template-columns: 1fr 1px 1fr;
+  gap: 0;
+  margin-top: 40px;
+  flex: 1;
+}
+.research-divider { background: var(--c-charcoal); }
+.method-stack {
+  padding-right: 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.method-card {
+  display: grid;
+  grid-template-columns: 72px 1fr 100px;
+  gap: 20px;
+  align-items: center;
+  padding: 22px 0;
+  border-bottom: 1px solid var(--c-charcoal);
+}
+.method-card:last-child { border-bottom: none; }
+.method-card .mc-num {
+  font-family: var(--f-display);
+  font-size: 48px;
+  font-weight: 400;
+  color: var(--c-charcoal);
+  line-height: 1;
+}
+.method-card .mc-title {
+  font-family: var(--f-mono);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--c-cream);
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.method-card .mc-desc {
+  font-family: var(--f-body);
+  font-size: 13px;
+  color: var(--c-silver);
+  line-height: 1.65;
+}
+.method-card .mc-tag {
+  font-family: var(--f-mono);
+  font-size: 9px;
+  color: var(--c-gold);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  text-align: right;
+}
+
+.finding-stack {
+  padding-left: 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.finding-card {
+  padding: 24px 0;
+  border-bottom: 1px solid var(--c-charcoal);
+  position: relative;
+}
+.finding-card:last-child { border-bottom: none; }
+.finding-card .fc-stat {
+  font-family: var(--f-display);
+  font-size: 56px;
+  font-weight: 700;
+  color: var(--c-vermillion);
+  line-height: 1;
+  margin-bottom: 8px;
+}
+.finding-card .fc-title {
+  font-family: var(--f-body);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--c-cream);
+  margin-bottom: 6px;
+}
+.finding-card .fc-desc {
+  font-family: var(--f-body);
+  font-size: 13px;
+  color: var(--c-silver);
+  line-height: 1.65;
+}
+.finding-card .fc-source {
+  font-family: var(--f-mono);
+  font-size: 9px;
+  color: var(--c-graphite);
+  letter-spacing: 2px;
+  margin-top: 10px;
+  text-transform: uppercase;
+}
+.finding-card:nth-child(1) {
+  --panel-image: url('https://images.pexels.com/photos/12703137/pexels-photo-12703137.jpeg?cs=srgb&dl=pexels-edanur-sonkaya-194758981-12703137.jpg&fm=jpg');
+  --panel-opacity: 0.32;
+}
+.finding-card:nth-child(2) {
+  --panel-image: url('./screenshots/05_mode3_ink_in_water.png');
+  --panel-opacity: 0.34;
+}
+.finding-card:nth-child(3) {
+  --panel-image: url('https://images.pexels.com/photos/36126282/pexels-photo-36126282.jpeg?cs=srgb&dl=pexels-adrien-olichon-1257089-36126282.jpg&fm=jpg');
+  --panel-opacity: 0.30;
+}
+.research-atlas {
+  display: grid;
+  grid-template-columns: 1.25fr 1fr 1fr 1fr;
+  gap: 8px;
+  margin-top: 18px;
+  height: 104px;
+}
+.research-atlas-item {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--c-charcoal);
+}
+.research-atlas-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.78;
+}
+.research-atlas-item::after {
+  content: attr(data-label);
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  font-family: var(--f-mono);
+  font-size: 8px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--c-cream);
+  background: rgba(12,12,12,0.74);
+  padding: 5px 8px;
+}
+
+/* ============ PAGE 4 — PERSONAS (light) ============ */
+.persona-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin-top: 32px;
+  margin-bottom: 14px;
+}
+.persona-card {
+  border: 1px solid var(--c-fog);
+  background: var(--c-white);
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  min-height: 248px;
+  overflow: hidden;
+  position: relative;
+}
+.persona-card--flip {
+  grid-template-columns: 1fr 320px;
+}
+.persona-photo {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #f1efe9;
+}
+.persona-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center center;
+}
+.persona-body {
+  padding: 20px 24px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.persona-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+.persona-name {
+  font-family: var(--f-display);
+  font-size: 40px;
+  font-weight: 400;
+  color: var(--c-ink);
+  letter-spacing: -0.6px;
+  margin-bottom: 4px;
+  line-height: 0.95;
+}
+.persona-meta {
+  font-family: var(--f-mono);
+  font-size: 10px;
+  color: var(--c-stone);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.persona-behavior-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 2px;
+}
+.persona-behavior-tag {
+  font-family: var(--f-mono);
+  font-size: 9px;
+  padding: 4px 10px;
+  border: 1px solid var(--c-fog);
+  color: var(--c-graphite);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.persona-stats {
+  display: flex;
+  gap: 8px;
+}
+.persona-stats .ps {
+  text-align: center;
+  padding: 7px 12px;
+  border: 1px solid var(--c-fog);
+  min-width: 62px;
+}
+.persona-stats .ps-v {
+  font-family: var(--f-mono);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--c-ink);
+}
+.persona-stats .ps-k {
+  font-family: var(--f-mono);
+  font-size: 8px;
+  color: var(--c-stone);
+  letter-spacing: 1px;
+  margin-top: 2px;
+  text-transform: uppercase;
+}
+.persona-quote {
+  padding: 12px 14px 12px 16px;
+  border-left: 2px solid var(--c-vermillion);
+  background: #f6f4ee;
+  font-family: var(--f-body);
+  font-style: italic;
+  font-size: 13px;
+  color: var(--c-graphite);
+  line-height: 1.55;
+}
+.persona-two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.persona-col-head {
+  font-family: var(--f-mono);
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--c-vermillion);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
+.persona-list { display: flex; flex-direction: column; gap: 6px; list-style: none; }
+.persona-list li {
+  padding-left: 14px;
+  position: relative;
+  font-family: var(--f-body);
+  font-size: 11px;
+  color: var(--c-graphite);
+  line-height: 1.45;
+}
+.persona-list li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 6px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--c-stone);
+}
+.persona-list.neg li::before { background: var(--c-vermillion); }
+
+/* ============ PAGE 5 — JOURNEY (light) ============ */
+.journey-wrap {
+  margin-top: 36px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.journey-table {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0;
+  border: 1px solid var(--c-fog);
+  flex: 1;
+}
+.journey-table .panel-art::before,
+.journey-table .panel-art::after {
+  display: none;
+}
+.journey-col {
+  padding: 18px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-right: 1px solid var(--c-fog);
+  background: #FBF9F4;
+}
+.journey-col:last-child { border-right: none; }
+.journey-col:nth-child(2n) { background: #F8F5EE; }
+.jc-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+.jc-icon {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  opacity: 0.9;
+  filter: saturate(0.85);
+}
+.journey-col:nth-child(1) {
+  --panel-image: url('https://images.pexels.com/photos/5530440/pexels-photo-5530440.jpeg?cs=srgb&dl=pexels-dothanhyb-5530440.jpg&fm=jpg');
+  --panel-opacity: 0.28;
+}
+.journey-col:nth-child(2) {
+  --panel-image: url('./screenshots/01_landing.png');
+  --panel-opacity: 0.32;
+}
+.journey-col:nth-child(3) {
+  --panel-image: url('./screenshots/03_mode1_breath_of_words.png');
+  --panel-opacity: 0.32;
+}
+.journey-col:nth-child(4) {
+  --panel-image: url('./screenshots/04_mode2_sound_galaxy.png');
+  --panel-opacity: 0.32;
+}
+.journey-col:nth-child(5) {
+  --panel-image: url('./screenshots/05_mode3_ink_in_water.png');
+  --panel-opacity: 0.30;
+}
+.journey-col .jc-num {
+  font-family: var(--f-mono);
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: var(--c-vermillion);
+  text-transform: uppercase;
+}
+.journey-col .jc-stage {
+  font-family: var(--f-display);
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--c-ink);
+  letter-spacing: -0.3px;
+}
+.journey-col .jc-row {
+  font-family: var(--f-body);
+  font-size: 11px;
+  color: var(--c-graphite);
+  line-height: 1.45;
+}
+.journey-col .jc-row .k {
+  font-family: var(--f-mono);
+  font-size: 8px;
+  color: var(--c-gold);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 3px;
+}
+.emotion-bar {
+  height: 68px;
+  border: 1px solid var(--c-fog);
+  position: relative;
+  background: #FCFAF6;
+}
+.emotion-bar svg { width: 100%; height: 100%; display: block; }
+
+.strategy-row {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr 1.15fr;
+  gap: 10px;
+  border: none;
+}
+.strategy-cell {
+  padding: 14px 16px;
+  border: 1px solid var(--c-fog);
+  background: #FBF9F4;
+  position: relative;
+}
+.strategy-cell:nth-child(2) { background: #F7F3EA; }
+.strategy-cell::before {
+  content: attr(data-step);
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  font-family: var(--f-mono);
+  font-size: 8px;
+  letter-spacing: 2px;
+  color: var(--c-stone);
+}
+.strategy-cell .sc-num {
+  font-family: var(--f-display);
+  font-size: 24px;
+  font-weight: 400;
+  color: var(--c-vermillion);
+  margin-bottom: 0;
+}
+.strategy-cell .sc-title {
+  font-family: var(--f-mono);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--c-ink);
+  letter-spacing: 1.5px;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
+.strategy-cell .sc-desc {
+  font-family: var(--f-body);
+  font-size: 12px;
+  color: var(--c-graphite);
+  line-height: 1.45;
+}
+.sc-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.sc-head img {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  opacity: 0.8;
+}
+.sc-impact {
+  margin-top: 8px;
+  display: inline-flex;
+  padding: 3px 8px;
+  border: 1px solid var(--c-fog);
+  font-family: var(--f-mono);
+  font-size: 8px;
+  letter-spacing: 1.4px;
+  color: var(--c-stone);
+  text-transform: uppercase;
+}
+
+/* ============ PAGE 6 — COMPETITIVE (dark) ============ */
+.comp-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0;
+  margin-top: 36px;
+  flex: 1;
+  border: 1px solid var(--c-charcoal);
+}
+.comp-card {
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  border-right: 1px solid var(--c-charcoal);
+  border-bottom: 1px solid var(--c-charcoal);
+}
+.comp-card:nth-child(2n) { border-right: none; }
+.comp-card:nth-child(n+3) { border-bottom: none; }
+.comp-card .cc-head { display: flex; justify-content: space-between; align-items: flex-start; }
+.comp-card::before {
+  background-position: center;
+  opacity: 0.16;
+}
+.comp-card .cc-media {
+  height: 92px;
+  border: 1px solid var(--c-charcoal);
+  overflow: hidden;
+  margin: -2px 0 6px;
+}
+.comp-card .cc-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.82;
+}
+.comp-card .cc-name {
+  font-family: var(--f-display);
+  font-size: 24px;
+  font-weight: 500;
+  color: var(--c-cream);
+  letter-spacing: -0.3px;
+}
+.comp-card .cc-type {
+  font-family: var(--f-mono);
+  font-size: 9px;
+  color: var(--c-graphite);
+  letter-spacing: 2px;
+  margin-top: 4px;
+  text-transform: uppercase;
+}
+.comp-card .cc-logo {
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--c-charcoal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--f-display);
+  font-size: 18px;
+  font-weight: 400;
+  color: var(--c-stone);
+}
+.comp-card .cc-row {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  gap: 12px;
+  font-family: var(--f-body);
+  font-size: 13px;
+  color: var(--c-silver);
+  line-height: 1.6;
+}
+.comp-card .cc-row .k {
+  font-family: var(--f-mono);
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+.comp-card .cc-row .k.p { color: var(--c-teal); }
+.comp-card .cc-row .k.n { color: var(--c-vermillion); }
+.comp-card .cc-row .k.g { color: var(--c-gold); }
+.comp-card:nth-child(1) {
+  --panel-image: url('https://images.pexels.com/photos/8132521/pexels-photo-8132521.jpeg?cs=srgb&dl=pexels-anna-pou-8132521.jpg&fm=jpg');
+  --panel-opacity: 0.34;
+}
+.comp-card:nth-child(2) {
+  --panel-image: url('./screenshots/04_mode2_sound_galaxy.png');
+  --panel-opacity: 0.34;
+}
+.comp-card:nth-child(3) {
+  --panel-image: url('https://images.pexels.com/photos/36126282/pexels-photo-36126282.jpeg?cs=srgb&dl=pexels-adrien-olichon-1257089-36126282.jpg&fm=jpg');
+  --panel-opacity: 0.32;
+}
+.comp-card:nth-child(4) {
+  --panel-image: url('https://images.pexels.com/photos/31645660/pexels-photo-31645660.jpeg?cs=srgb&dl=pexels-leticia-alvares-1805702-31645660.jpg&fm=jpg');
+  --panel-opacity: 0.30;
+}
+
+.comp-insight-bar {
+  margin-top: 20px;
+  padding: 24px 32px;
+  border: 1px solid var(--c-charcoal);
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+.comp-insight-bar .ci-mark {
+  font-family: var(--f-display);
+  font-size: 36px;
+  font-weight: 400;
+  color: var(--c-vermillion);
+  flex-shrink: 0;
+}
+.comp-insight-bar .ci-text {
+  font-family: var(--f-body);
+  font-size: 16px;
+  color: var(--c-cream);
+  line-height: 1.6;
+}
+.comp-insight-bar .ci-text em { color: var(--c-gold); font-style: normal; font-weight: 600; }
+
+/* ============ PAGE 7 — IA + DS (light) ============ */
+.ia-layout {
+  display: grid;
+  grid-template-columns: 1fr 1px 1fr;
+  gap: 0;
+  margin-top: 36px;
+  flex: 1;
+}
+.ia-divider { background: var(--c-fog); }
+.ia-tree-col { padding-right: 40px; }
+.ia-tree {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.ia-node {
+  padding: 14px 20px;
+  border: 1px solid var(--c-fog);
+  font-family: var(--f-mono);
+  font-size: 12px;
+  color: var(--c-ink);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.ia-node .tag {
+  font-size: 9px;
+  color: var(--c-stone);
+  letter-spacing: 2px;
+}
+.ia-branch {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  padding-left: 24px;
+  position: relative;
+}
+.ia-branch::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: 10px;
+  bottom: 0;
+  width: 1px;
+  background: var(--c-fog);
+}
+.ia-leaf {
+  padding: 12px;
+  border: 1px solid var(--c-fog);
+  text-align: center;
+}
+.ia-leaf strong {
+  font-family: var(--f-mono);
+  font-size: 10px;
+  color: var(--c-vermillion);
+  display: block;
+  margin-bottom: 2px;
+  letter-spacing: 1px;
+}
+.ia-leaf span {
+  font-family: var(--f-body);
+  font-size: 11px;
+  color: var(--c-graphite);
+}
+.ia-aux {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding-left: 24px;
+  margin-top: 8px;
+}
+
+.ds-col {
+  padding-left: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.ds-label {
+  font-family: var(--f-mono);
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: var(--c-gold);
+  text-transform: uppercase;
+}
+.ds-swatches {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+}
+.swatch {
+  aspect-ratio: 1;
+  position: relative;
+  border: 1px solid var(--c-fog);
+}
+.swatch::after {
+  content: attr(data-hex);
+  position: absolute;
+  bottom: 6px;
+  left: 6px;
+  font-family: var(--f-mono);
+  font-size: 8px;
+  color: rgba(255,255,255,0.7);
+  letter-spacing: 1px;
+}
+.swatch[data-hex="#FAF8F4"]::after,
+.swatch[data-hex="#F2EDE4"]::after { color: var(--c-stone); }
+
+.type-scale {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border: 1px solid var(--c-fog);
+  padding: 16px 20px;
+}
+.type-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--c-fog);
+}
+.type-row:last-child { border-bottom: none; padding-bottom: 0; }
+.type-sample { color: var(--c-ink); }
+.type-spec {
+  font-family: var(--f-mono);
+  font-size: 9px;
+  color: var(--c-stone);
+  letter-spacing: 1px;
+}
+
+.motion-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  border: 1px solid var(--c-fog);
+}
+.motion-cell {
+  padding: 14px 16px;
+  border-right: 1px solid var(--c-fog);
+}
+.motion-cell:last-child { border-right: none; }
+.motion-cell .mc-k {
+  font-family: var(--f-mono);
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--c-vermillion);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.motion-cell .mc-v {
+  font-family: var(--f-display);
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--c-ink);
+  margin-bottom: 4px;
+}
+.motion-cell .mc-d {
+  font-family: var(--f-body);
+  font-size: 11px;
+  color: var(--c-graphite);
+  line-height: 1.5;
+}
+.ds-fragments {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-top: 4px;
+}
+.ds-frag {
+  border: 1px solid var(--c-fog);
+  background: #FAF8F4;
+  padding: 10px 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.ds-frag span {
+  display: block;
+  font-family: var(--f-mono);
+  font-size: 8px;
+  letter-spacing: 1.4px;
+  color: var(--c-stone);
+  text-transform: uppercase;
+}
+.ds-frag-k {
+  font-family: var(--f-mono);
+  font-size: 8px;
+  letter-spacing: 1.8px;
+  color: var(--c-vermillion);
+  text-transform: uppercase;
+}
+.ds-frag-v {
+  font-family: var(--f-body);
+  font-size: 11px;
+  color: var(--c-graphite);
+  line-height: 1.45;
+  min-height: 52px;
+}
+.ds-mini-bars {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 4px;
+}
+.ds-mini-bars i {
+  height: 4px;
+  display: block;
+  background: var(--c-fog);
+}
+.ds-mini-bars i:nth-child(1) { background: #E63B2E; }
+.ds-mini-bars i:nth-child(2) { background: #C8A850; }
+.ds-mini-bars i:nth-child(3) { background: #2A7A6E; }
+
+/* ============ PAGE 8 — SHOWCASE (dark) ============ */
+.showcase-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 2px;
+  margin-top: 32px;
+  flex: 1;
+  background: var(--c-charcoal);
+}
+.showcase-cell {
+  position: relative;
+  overflow: hidden;
+  background: var(--c-ink);
+}
+.showcase-cell img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.showcase-caption {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 20px 28px;
+  background: linear-gradient(to top, rgba(12,12,12,0.92) 30%, transparent);
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+.showcase-caption .sc-title {
+  font-family: var(--f-display);
+  font-size: 22px;
+  font-weight: 400;
+  color: var(--c-cream);
+  letter-spacing: -0.3px;
+}
+.showcase-caption .sc-title .zh {
+  font-family: var(--f-zh);
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--c-stone);
+  margin-left: 10px;
+  letter-spacing: 3px;
+}
+.showcase-caption .sc-desc {
+  font-family: var(--f-mono);
+  font-size: 9px;
+  color: var(--c-stone);
+  letter-spacing: 2px;
+  text-align: right;
+  text-transform: uppercase;
+}
+.showcase-index {
+  position: absolute;
+  top: 20px;
+  left: 28px;
+  font-family: var(--f-mono);
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: var(--c-vermillion);
+  text-transform: uppercase;
+}
+
+/* ============ PAGE 9 — RESULTS (light) ============ */
+.results-top {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  margin-top: 36px;
+  border: 1px solid var(--c-fog);
+}
+.outcome-card {
+  padding: 32px 28px;
+  border-right: 1px solid var(--c-fog);
+}
+.outcome-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.oc-icon {
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+  opacity: 0.82;
+}
+.outcome-card:last-child { border-right: none; }
+.outcome-card::before {
+  display: none;
+}
+.outcome-card:nth-child(1) {
+  background: #F7F2E9;
+}
+.outcome-card:nth-child(2) {
+  background: #F2EBDD;
+}
+.outcome-card:nth-child(3) {
+  background: #EFE7D8;
+}
+.outcome-card:nth-child(4) {
+  background: #EBE2D2;
+}
+.outcome-card .oc-num {
+  font-family: var(--f-display);
+  font-size: 56px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--c-vermillion);
+  margin-bottom: 10px;
+}
+.outcome-card .oc-label {
+  font-family: var(--f-mono);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--c-ink);
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+.outcome-card .oc-desc {
+  font-family: var(--f-body);
+  font-size: 12px;
+  color: var(--c-graphite);
+  line-height: 1.6;
+}
+
+.results-mid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0;
+  margin-top: 24px;
+  border: 1px solid var(--c-fog);
+}
+.quote-cell {
+  padding: 24px 28px;
+  border-right: 1px solid var(--c-fog);
+  position: relative;
+  min-height: 178px;
+}
+.quote-cell:last-child { border-right: none; }
+.quote-cell::before {
+  content: '"';
+  font-family: var(--f-display);
+  font-size: 64px;
+  color: var(--c-fog);
+  line-height: 1;
+  position: absolute;
+  top: 8px;
+  left: 20px;
+}
+.quote-cell::after {
+  display: none;
+}
+.quote-cell > * {
+  position: relative;
+  z-index: 1;
+}
+.quote-cell:nth-child(1) { background: #F4EFE6; }
+.quote-cell:nth-child(2) { background: #F1ECE2; }
+.quote-cell:nth-child(3) { background: #EEE8DD; }
+.quote-cell .qb-text {
+  font-family: var(--f-body);
+  font-style: italic;
+  font-size: 14px;
+  color: var(--c-graphite);
+  line-height: 1.7;
+  margin-top: 28px;
+  margin-bottom: 14px;
+}
+.quote-cell .qb-who {
+  font-family: var(--f-mono);
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--c-stone);
+  text-transform: uppercase;
+}
+.artifact-ribbon {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-top: 16px;
+}
+.artifact-card {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--c-fog);
+  height: 110px;
+}
+.artifact-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.artifact-card::after {
+  content: attr(data-label);
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  font-family: var(--f-mono);
+  font-size: 8px;
+  letter-spacing: 2px;
+  color: var(--c-white);
+  background: rgba(12,12,12,0.75);
+  padding: 5px 8px;
+  text-transform: uppercase;
+}
+
+.results-bot {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  margin-top: 20px;
+  border: 1px solid var(--c-fog);
+}
+.selfassess {
+  padding: 22px 26px;
+  border-right: 1px solid var(--c-fog);
+}
+.selfassess:last-child { border-right: none; }
+.selfassess .sa-head {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.selfassess .sa-icon {
+  font-family: var(--f-mono);
+  font-size: 14px;
+  font-weight: 700;
+}
+.selfassess.worked .sa-icon { color: var(--c-teal); }
+.selfassess.change .sa-icon { color: var(--c-gold); }
+.selfassess.learn .sa-icon { color: var(--c-vermillion); }
+.selfassess .sa-title {
+  font-family: var(--f-mono);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--c-ink);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+.selfassess .sa-body {
+  font-family: var(--f-body);
+  font-size: 13px;
+  color: var(--c-graphite);
+  line-height: 1.6;
+}
+
+/* ============ PAGE 10 — FUTURE (dark) ============ */
+.future-layout {
+  margin-top: 36px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+.roadmap-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  border: 1px solid var(--c-charcoal);
+}
+.roadmap-card {
+  padding: 36px 32px;
+  border-right: 1px solid var(--c-charcoal);
+  position: relative;
+}
+.roadmap-card:last-child { border-right: none; }
+.roadmap-card::before {
+  background-position: center;
+  opacity: 0.34;
+}
+.roadmap-card:nth-child(1) { --panel-image: url('https://images.pexels.com/photos/6499007/pexels-photo-6499007.jpeg?cs=srgb&dl=pexels-tima-miroshnichenko-6499007.jpg&fm=jpg'); }
+.roadmap-card:nth-child(2) { --panel-image: url('https://images.pexels.com/photos/35061825/pexels-photo-35061825.jpeg?cs=srgb&dl=pexels-jesus-rivera-2156773390-35061825.jpg&fm=jpg'); }
+.roadmap-card:nth-child(3) { --panel-image: url('https://images.pexels.com/photos/956981/milky-way-starry-sky-night-sky-star-956981.jpeg?cs=srgb&dl=pexels-felix-mittermeier-956981.jpg&fm=jpg'); }
+.roadmap-card .rc-phase {
+  font-family: var(--f-mono);
+  font-size: 9px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+.roadmap-card:nth-child(1) .rc-phase { color: var(--c-vermillion); }
+.roadmap-card:nth-child(2) .rc-phase { color: var(--c-gold); }
+.roadmap-card:nth-child(3) .rc-phase { color: var(--c-teal); }
+.roadmap-card .rc-period {
+  font-family: var(--f-mono);
+  font-size: 10px;
+  color: var(--c-graphite);
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+}
+.roadmap-card .rc-title {
+  font-family: var(--f-display);
+  font-size: 24px;
+  font-weight: 500;
+  color: var(--c-cream);
+  margin-bottom: 16px;
+  letter-spacing: -0.3px;
+}
+.roadmap-card ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.roadmap-card li {
+  padding-left: 16px;
+  position: relative;
+  font-family: var(--f-body);
+  font-size: 13px;
+  color: var(--c-silver);
+  line-height: 1.6;
+}
+.roadmap-card li::before {
+  content: '—';
+  position: absolute;
+  left: 0;
+  color: var(--c-graphite);
+  font-family: var(--f-mono);
+  font-size: 10px;
+}
+.future-vision {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.future-vision-card {
+  border: 1px solid var(--c-charcoal);
+  overflow: hidden;
+}
+.future-vision-card img {
+  width: 100%;
+  height: 118px;
+  object-fit: cover;
+  opacity: 0.84;
+}
+.future-vision-card div {
+  padding: 10px 12px 12px;
+}
+.future-vision-card strong {
+  display: block;
+  font-family: var(--f-mono);
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--c-vermillion);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.future-vision-card span {
+  font-family: var(--f-body);
+  font-size: 12px;
+  color: var(--c-silver);
+  line-height: 1.45;
+}
+
+.contact-footer {
+  padding: 40px 48px;
+  border: 1px solid var(--c-charcoal);
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 40px;
+  align-items: center;
+}
+.contact-title {
+  font-family: var(--f-display);
+  font-size: 40px;
+  font-weight: 400;
+  line-height: 1.15;
+  letter-spacing: -1px;
+  color: var(--c-cream);
+  margin-bottom: 14px;
+}
+.contact-title em { font-style: italic; color: var(--c-vermillion); }
+.contact-lede {
+  font-family: var(--f-body);
+  font-size: 15px;
+  color: var(--c-silver);
+  line-height: 1.7;
+  max-width: 520px;
+}
+.contact-info { display: flex; flex-direction: column; gap: 14px; }
+.contact-row {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  font-family: var(--f-mono);
+  font-size: 12px;
+  color: var(--c-cream);
+}
+.contact-row .ck {
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: var(--c-stone);
+  text-transform: uppercase;
+  width: 100px;
+  flex-shrink: 0;
+}
+
+/* ============ PAGE-LEVEL BACKGROUND TEXTURES ============ */
+/* Each page gets a full-bleed ambient image behind all content */
+#p1::before, #p2::before, #p3::before, #p4::before,
+#p5::before, #p6::before, #p8::before, #p9::before, #p10::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  pointer-events: none;
+  z-index: 0;
+}
+/* Hero: galaxy backdrop */
+#p1::before {
+  background-image: url('https://images.pexels.com/photos/956999/milky-way-starry-sky-night-sky-star-956999.jpeg?cs=srgb&dl=pexels-felix-mittermeier-956999.jpg&fm=jpg');
+  opacity: 0.14;
+}
+/* Overview: microphone + creative space */
+#p2::before {
+  background-image: url('https://images.pexels.com/photos/1037992/pexels-photo-1037992.jpeg?cs=srgb&dl=pexels-brett-sayles-1037992.jpg&fm=jpg');
+  opacity: 0.05;
+}
+/* Research: dark study environment */
+#p3::before {
+  background-image: url('./screenshots/05_mode3_ink_in_water.png');
+  opacity: 0.08;
+}
+/* Personas: warm human scene */
+#p4::before {
+  background-image: url('https://images.pexels.com/photos/5530440/pexels-photo-5530440.jpeg?cs=srgb&dl=pexels-dothanhyb-5530440.jpg&fm=jpg');
+  opacity: 0.04;
+}
+/* Journey: app screenshot atmosphere */
+#p5::before {
+  background-image: none;
+  opacity: 0;
+}
+#p5::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image:
+    repeating-linear-gradient(to right, rgba(212,208,200,0.16) 0, rgba(212,208,200,0.16) 1px, transparent 1px, transparent 120px),
+    repeating-linear-gradient(to bottom, rgba(212,208,200,0.12) 0, rgba(212,208,200,0.12) 1px, transparent 1px, transparent 96px);
+}
+#p5 .page-inner { position: relative; z-index: 2; }
+/* Competitive: dark, saturated abstract */
+#p6::before {
+  background-image: url('https://images.pexels.com/photos/207529/pexels-photo-207529.jpeg?cs=srgb&dl=pexels-pixabay-207529.jpg&fm=jpg');
+  opacity: 0.07;
+}
+/* Showcase: use the resonance field */
+#p8::before {
+  background-image: url('./screenshots/06_mode4_resonance_field.png');
+  opacity: 0.12;
+}
+/* Results: breath of words */
+#p9::before {
+  background-image: none;
+  opacity: 0;
+}
+/* Future: starfield */
+#p10::before {
+  background-image: url('https://images.pexels.com/photos/956981/milky-way-starry-sky-night-sky-star-956981.jpeg?cs=srgb&dl=pexels-felix-mittermeier-956981.jpg&fm=jpg');
+  opacity: 0.10;
+}
+/* Ensure page-inner always sits above page bg */
+.page > .page-inner { z-index: 2; }
+.page > .hero-grid { position: relative; z-index: 2; }
+
+/* ============ ICON HEADER ROWS ============ */
+/* ov-card icon+title flex row */
+.ov-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.ov-card-header img {
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+  object-fit: contain;
+  opacity: 0.85;
+}
+.ov-card-header .ov-card-title {
+  margin-bottom: 0;
+}
+
+/* method-card icon */
+.mc-icon {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  opacity: 0.75;
+  flex-shrink: 0;
+}
+/* strategy-cell icon row */
+.sc-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.sc-head img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  opacity: 0.8;
+}
+.sc-head .sc-num {
+  margin-bottom: 0;
+}
+
+/* selfassess icon upgrade */
+.sa-icon-img {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  opacity: 0.85;
+}
+
+/* roadmap icon */
+.rc-icon {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  opacity: 0.85;
+  margin-bottom: 10px;
+  display: block;
+}
+
+/* insight icon */
+.insight-icon {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  opacity: 0.55;
+}
+
+/* Nav TOC */
+.toc {
+  position: fixed;
+  top: 50%;
+  right: 24px;
+  transform: translateY(-50%);
+  z-index: 200;
+  background: rgba(12,12,12,0.9);
+  border: 1px solid var(--c-charcoal);
+  padding: 14px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.toc a {
+  width: 8px;
+  height: 8px;
+  display: block;
+  background: var(--c-charcoal);
+  transition: background .2s;
+  position: relative;
+}
+.toc a:hover { background: var(--c-vermillion); }
+.toc a::after {
+  content: attr(data-label);
+  position: absolute;
+  right: 22px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: var(--f-mono);
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--c-cream);
+  background: rgba(12,12,12,0.95);
+  padding: 4px 10px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s;
+  text-transform: uppercase;
+}
+.toc a:hover::after { opacity: 1; }
+</style>
+</head>
+<body>
+
+<!-- Floating TOC -->
+<nav class="toc">
+  <a href="#p1" data-label="Hero"></a>
+  <a href="#p2" data-label="Overview"></a>
+  <a href="#p3" data-label="Research"></a>
+  <a href="#p4" data-label="Personas"></a>
+  <a href="#p5" data-label="Journey"></a>
+  <a href="#p6" data-label="Competitive"></a>
+  <a href="#p7" data-label="IA + DS"></a>
+  <a href="#p8" data-label="Showcase"></a>
+  <a href="#p9" data-label="Results"></a>
+  <a href="#p10" data-label="Future"></a>
+</nav>
+
+<!-- ===== PAGE 1 — HERO ===== -->
+<section class="page page--dark" id="p1">
+  <div class="hero-grid">
+    <div class="hero-left">
+      <div class="hero-badge">Master Portfolio · 2026 · Scheme 06</div>
+      <h1 class="hero-title">Sound<br/><em>Poetry.</em></h1>
+      <div class="hero-sub-zh">聲音詩歌 · 看見聽見</div>
+      <p class="hero-lede">An interactive visual poetry experiment that renders the human voice into particles, galaxies, ink and resonance — pairing eight classic English poems with Traditional Chinese translations for a read-aloud experience.</p>
+      <div class="hero-meta-row">
+        <div class="hero-meta-item"><span class="k">Type</span><span class="v">New Media · Generative</span></div>
+        <div class="hero-meta-item"><span class="k">Role</span><span class="v">Solo · Design + Code</span></div>
+        <div class="hero-meta-item"><span class="k">Duration</span><span class="v">8 weeks · 2026</span></div>
+        <div class="hero-meta-item"><span class="k">Stack</span><span class="v">Three.js · Web Audio · GLSL</span></div>
+      </div>
+      <div class="hero-cta-row">
+        <a class="hero-cta" href="./sound_poetry.html">Launch Demo →</a>
+        <a class="hero-cta-ghost" href="#p2">Read the Study</a>
+      </div>
+      <div class="hero-marquee">
+        <div class="hero-marquee-track">
+          <span>See the unseen</span><span>Hear the visible</span><span>以聲為筆</span><span>Sound is landscape</span><span>Voice is ink</span><span>繪夢為章</span>
+          <span>See the unseen</span><span>Hear the visible</span><span>以聲為筆</span><span>Sound is landscape</span><span>Voice is ink</span><span>繪夢為章</span>
+        </div>
+      </div>
+    </div>
+    <div class="hero-right">
+      <div class="wave-art">
+        <div class="wave-ring"></div>
+        <div class="wave-ring"></div>
+        <div class="wave-ring"></div>
+        <div class="wave-ring"></div>
+        <div class="wave-ring"></div>
+        <div class="wave-center"></div>
+      </div>
+      <div class="hero-poem">
+        "Hope is the thing with feathers<br/>— that perches in the soul —"<br/>
+        <span class="zh">希望是有羽的生靈／於靈魂之巔棲息</span>
+      </div>
+    </div>
+  </div>
+  <div class="page-num">01 / 10</div>
+</section>
+
+<!-- ===== PAGE 2 — OVERVIEW ===== -->
+<section class="page" id="p2">
+  <div class="page-inner">
+    <div class="section-num">02 — Overview</div>
+    <h2 class="section-title">Four listening modes,<br/><em>one experiment.</em></h2>
+    <div class="section-rule"></div>
+    <p class="section-desc">The starting point was a simple question in my project brief: what if you could <em>see</em> your own voice while reading a poem? SoundPoetry is my answer — a browser-based experiment built with Three.js and WebAudio that turns breath and voice into four visual languages.</p>
+
+    <div class="overview-grid">
+      <div class="overview-sidebar">
+        <div class="ov-card panel-art">
+          <div class="ov-card-header">
+            <img src="https://img.icons8.com/fluency/48/lightning-bolt.png" alt="challenge">
+            <div class="ov-card-title">Challenge</div>
+          </div>
+          <div class="ov-card-text">Every audio-reactive tool I tested felt like a <strong>DJ toy</strong> — rewarding rhythm, ignoring meaning. I wanted something that makes <em>reading a poem aloud</em> feel worthwhile, not just making noise at a screen.</div>
+        </div>
+        <div class="ov-card panel-art">
+          <div class="ov-card-header">
+            <img src="https://img.icons8.com/fluency/48/administrator-male.png" alt="role">
+            <div class="ov-card-title">My Role</div>
+          </div>
+          <div class="ov-card-text">Solo designer–developer. Responsible for <strong>research</strong>, <strong>concept development</strong>, <strong>motion design</strong>, <strong>audio analysis pipeline</strong>, <strong>front-end build</strong>, and this case study.</div>
+        </div>
+        <div class="ov-card panel-art">
+          <div class="ov-card-header">
+            <img src="https://img.icons8.com/fluency/48/settings.png" alt="toolchain">
+            <div class="ov-card-title">Toolchain</div>
+          </div>
+          <div class="ov-card-text">Three.js r128 · Web Audio API · GLSL shaders · EffectComposer (Bloom + FilmPass + Chromatic Aberration) · gif.js export · Figma for IA.</div>
+        </div>
+        <div class="ov-card panel-art">
+          <div class="ov-card-header">
+            <img src="https://img.icons8.com/fluency/48/prize.png" alt="outcomes">
+            <div class="ov-card-title">Outcomes</div>
+          </div>
+          <div class="ov-card-text">A 100 KB single-file HTML demo rendering <strong>6,144 particles</strong> at <strong>60 fps</strong>, 4 modes, 8 curated poems, and a <strong>downloadable GIF keepsake</strong>.</div>
+        </div>
+      </div>
+      <div class="overview-divider"></div>
+      <div class="overview-main">
+        <div class="insight-block panel-art">
+          <div class="insight-num">①</div>
+          <div class="insight-text"><strong>Sound is invisible.</strong> Poetry has always been an oral art form, but most digital poetry experiences strip out the voice entirely. I wanted to give spoken poetry a visual body — something you can watch and keep.</div>
+          <div class="source">Thesis brief · Scheme 06</div>
+        </div>
+        <div class="insight-block panel-art">
+          <div class="insight-num">②</div>
+          <div class="insight-text"><strong>Silent reading feels passive.</strong> All five interviewees described reading poetry silently as "homework." But when I showed them a prototype that reacted to their voice, they used words like "performance" and "playing."</div>
+          <div class="source">Interviews · Mar 2026</div>
+        </div>
+        <div class="insight-block panel-art">
+          <div class="insight-num">③</div>
+          <div class="insight-text"><strong>People want something to take away.</strong> 68% of respondents said they'd share a voice-generated visual on Xiaohongshu — as long as it actually looks good, not like a stock filter.</div>
+          <div class="source">Micro-survey · n=42</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="overview-visual-mosaic">
+      <div class="ov-media" data-label="voice input">Mic signal</div>
+      <div class="ov-media" data-label="semantic layer">Poem text</div>
+      <div class="ov-media" data-label="particle field">6,144 nodes</div>
+      <div class="ov-media" data-label="mode mapping">4 visual modes</div>
+      <div class="ov-media" data-label="artifact output">gif export</div>
+    </div>
+
+    <div class="metric-strip">
+      <div class="metric-cell"><div class="mv">6,144</div><div class="ml">Particles</div></div>
+      <div class="metric-cell"><div class="mv">4</div><div class="ml">Modes</div></div>
+      <div class="metric-cell"><div class="mv">8</div><div class="ml">Poems</div></div>
+      <div class="metric-cell"><div class="mv">60fps</div><div class="ml">Target</div></div>
+      <div class="metric-cell"><div class="mv">~100KB</div><div class="ml">Payload</div></div>
+      <div class="metric-cell"><div class="mv">8 wks</div><div class="ml">Solo Build</div></div>
+    </div>
+  </div>
+  <div class="page-num">02 / 10</div>
+</section>
+
+<!-- ===== PAGE 3 — RESEARCH ===== -->
+<section class="page page--dark" id="p3">
+  <div class="page-inner">
+    <div class="section-num">03 — Research</div>
+    <h2 class="section-title" style="color:var(--c-cream)">Research &amp; <em>findings</em></h2>
+    <div class="section-rule"></div>
+    <p class="section-desc">Desk research, five conversations, a 42-person survey, and a technical stress test. I needed to know two things: does anyone actually want this, and can a browser handle it?</p>
+
+    <div class="research-grid">
+      <div class="method-stack">
+        <div class="method-card">
+          <div class="mc-num">01</div>
+          <div><div class="mc-title"><img class="mc-icon" src="https://img.icons8.com/fluency/48/documents.png" alt=""> Desktop Research</div><div class="mc-desc">12 papers covering <em>synesthesia</em>, <em>embodied cognition</em>, and <em>chromesthesia</em>; 6 precedent studies including teamLab, Rafael Lozano-Hemmer, and Björk's Biophilia.</div></div>
+          <div class="mc-tag">12 Sources</div>
+        </div>
+        <div class="method-card">
+          <div class="mc-num">02</div>
+          <div><div class="mc-title"><img class="mc-icon" src="https://img.icons8.com/fluency/48/chat.png" alt=""> User Interviews</div><div class="mc-desc">5 semi-structured conversations (30 min each) with classmates, a friend who posts poetry on WeChat, and a high school Chinese teacher — focused on reading rituals and where poetry actually fits in their lives.</div></div>
+          <div class="mc-tag">n=5 · Age 20–23</div>
+        </div>
+        <div class="method-card">
+          <div class="mc-num">03</div>
+          <div><div class="mc-title"><img class="mc-icon" src="https://img.icons8.com/fluency/48/statistics.png" alt=""> Micro-Survey</div><div class="mc-desc">42 responses collected via Xiaohongshu and a university design WeChat group. Key question: would you share a visual artifact generated from your own voice?</div></div>
+          <div class="mc-tag">n=42 · Quant</div>
+        </div>
+        <div class="method-card">
+          <div class="mc-num">04</div>
+          <div><div class="mc-title"><img class="mc-icon" src="https://img.icons8.com/fluency/48/processor.png" alt=""> Tech Probe</div><div class="mc-desc">Three.js instanced-buffer stress tests and WebAudio latency measurements on MacBook Air M2 and mid-range Android — validated 6,144 particles at 60 fps.</div></div>
+          <div class="mc-tag">Feasibility</div>
+        </div>
+      </div>
+
+      <div class="research-divider"></div>
+
+      <div class="finding-stack">
+        <div class="finding-card panel-art panel-art--dark">
+          <div class="fc-stat">70%</div>
+          <div class="fc-title">of interviewees hadn't read a poem out loud since school.</div>
+          <div class="fc-desc">Yet most could recite a line or two from memory. Poetry is strangely familiar but un-voiced — people carry it around but never perform it. That felt like a real design opening.</div>
+          <div class="fc-source">Interviews · March 2026</div>
+        </div>
+        <div class="finding-card panel-art panel-art--dark">
+          <div class="fc-stat">68%</div>
+          <div class="fc-title">said they'd share it — provided the aesthetic holds up.</div>
+          <div class="fc-desc">People dismissed cartoon-y visuals as childish but responded strongly to <em>ink-in-water</em> and <em>galaxy</em> references from teamLab's projection work.</div>
+          <div class="fc-source">Survey · n=42</div>
+        </div>
+        <div class="finding-card panel-art panel-art--dark">
+          <div class="fc-stat">0</div>
+          <div class="fc-title">existing products marry literature + generative visuals + shareable output.</div>
+          <div class="fc-desc">Björk's Biophilia is a closed iPad app; teamLab only works in physical galleries; Patatap uses preset animations. <em>No one</em> lets you read a poem into your phone and walk away with something beautiful.</div>
+          <div class="fc-source">Competitive scan · Feb 2026</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="research-atlas">
+      <div class="research-atlas-item" data-label="voice capture">
+        <img src="https://images.pexels.com/photos/4319926/pexels-photo-4319926.jpeg?cs=srgb&dl=pexels-michal-dziekonski-2726786-4319926.jpg&fm=jpg" alt="studio microphone">
+      </div>
+      <div class="research-atlas-item" data-label="poetry source">
+        <img src="https://images.pexels.com/photos/12703137/pexels-photo-12703137.jpeg?cs=srgb&dl=pexels-edanur-sonkaya-194758981-12703137.jpg&fm=jpg" alt="poetry book reference">
+      </div>
+      <div class="research-atlas-item" data-label="share behavior">
+        <img src="https://images.pexels.com/photos/5530440/pexels-photo-5530440.jpeg?cs=srgb&dl=pexels-dothanhyb-5530440.jpg&fm=jpg" alt="student with computer">
+      </div>
+      <div class="research-atlas-item" data-label="cosmic palette">
+        <img src="https://images.pexels.com/photos/207529/pexels-photo-207529.jpeg?cs=srgb&dl=pexels-pixabay-207529.jpg&fm=jpg" alt="galaxy night sky">
+      </div>
+    </div>
+  </div>
+  <div class="page-num">03 / 10</div>
+</section>
+
+<!-- ===== PAGE 4 — PERSONAS ===== -->
+<section class="page" id="p4">
+  <div class="page-inner">
+    <div class="section-num">04 — Personas</div>
+    <h2 class="section-title">Who I <em>designed for.</em></h2>
+    <div class="section-rule"></div>
+    <p class="section-desc">Two composite personas drawn from interviews — not professional designers, just regular university students who might encounter something like this late at night on their phone.</p>
+
+    <div class="persona-grid">
+      <!-- 小雨：左图右文 -->
+      <div class="persona-card">
+        <div class="persona-photo">
+          <img src="https://images.unsplash.com/photo-1738085825887-507c05c58674?w=900&h=900&fit=crop&crop=face" alt="小雨">
+        </div>
+        <div class="persona-body">
+          <div class="persona-header-row">
+            <div>
+              <div class="persona-name">小雨 Xiaoyu · 21</div>
+              <div class="persona-meta">Chinese Lit · Junior · Nanjing Normal Univ. · INFP</div>
+              <div class="persona-behavior-tags">
+                <span class="persona-behavior-tag">Xiaohongshu daily</span>
+                <span class="persona-behavior-tag">Indie bookshop regular</span>
+                <span class="persona-behavior-tag">Writes poems in Notes app</span>
+              </div>
+            </div>
+            <div class="persona-stats">
+              <div class="ps"><div class="ps-v">HIGH</div><div class="ps-k">Aesthetic</div></div>
+              <div class="ps"><div class="ps-v">LOW</div><div class="ps-k">Tech</div></div>
+              <div class="ps"><div class="ps-v">HIGH</div><div class="ps-k">Share</div></div>
+            </div>
+          </div>
+          <div class="persona-quote">"Poetry is beautiful, but I'd literally die before reading it aloud in front of the whole class. I just want to sit alone with headphones and interact with a poem quietly."</div>
+          <div class="persona-two-col">
+            <div>
+              <div class="persona-col-head">Goals</div>
+              <ul class="persona-list">
+                <li>Find a way to enjoy poetry that doesn't feel like homework.</li>
+                <li>Post something aesthetically unique on Xiaohongshu.</li>
+                <li>Collect interactive design inspiration for fun.</li>
+              </ul>
+            </div>
+            <div>
+              <div class="persona-col-head">Frustrations</div>
+              <ul class="persona-list neg">
+                <li>Audio-reactive apps feel like DJ toys or look too childish.</li>
+                <li>"Poetry apps" are either dictionaries or recitation contests.</li>
+                <li>Cool new media exhibitions only happen in Beijing/Shanghai.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 浩然：左文右图 -->
+      <div class="persona-card persona-card--flip">
+        <div class="persona-body">
+          <div class="persona-header-row">
+            <div>
+              <div class="persona-name">浩然 Haoran · 22</div>
+              <div class="persona-meta">Digital Media · Senior · Zhejiang Univ. of Tech · INTJ</div>
+              <div class="persona-behavior-tags">
+                <span class="persona-behavior-tag">Bilibili power user</span>
+                <span class="persona-behavior-tag">GitHub lurker</span>
+                <span class="persona-behavior-tag">Occasional tech blog</span>
+              </div>
+            </div>
+            <div class="persona-stats">
+              <div class="ps"><div class="ps-v">MID</div><div class="ps-k">Aesthetic</div></div>
+              <div class="ps"><div class="ps-v">HIGH</div><div class="ps-k">Tech</div></div>
+              <div class="ps"><div class="ps-v">LOW</div><div class="ps-k">Share</div></div>
+            </div>
+          </div>
+          <div class="persona-quote">"Most generative art demos, you can see through them in two seconds. Boring. I want to see something where both the tech and the feeling actually hold up."</div>
+          <div class="persona-two-col">
+            <div>
+              <div class="persona-col-head">Goals</div>
+              <ul class="persona-list">
+                <li>Collect WebGL / Three.js case studies worth studying.</li>
+                <li>Find inspiration for his graduation project.</li>
+                <li>See how others tell stories in their portfolios.</li>
+              </ul>
+            </div>
+            <div>
+              <div class="persona-col-head">Frustrations</div>
+              <ul class="persona-list neg">
+                <li>Flashy demos everywhere, but few that explain the thinking.</li>
+                <li>Portfolio sites are either all packaging or bone-dry.</li>
+                <li>Most interactive pieces crash on his mid-range Android.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="persona-photo">
+          <img src="https://images.unsplash.com/photo-1698072556854-df5c4dacf7c7?w=900&h=900&fit=crop&crop=face" alt="浩然">
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <div class="page-num">04 / 10</div>
+</section>
+
+<!-- ===== PAGE 5 — JOURNEY ===== -->
+<section class="page" id="p5">
+  <div class="page-inner">
+    <div class="section-num">05 — Journey</div>
+    <h2 class="section-title">From stranger <em>to sharer.</em></h2>
+    <div class="section-rule"></div>
+    <p class="section-desc">Xiaoyu stumbles on SoundPoetry from a Xiaohongshu link, opens it in her dorm at midnight. Here's what that journey actually looks like — and where the design has to do the hardest work.</p>
+
+    <div class="journey-wrap">
+      <div class="journey-table">
+        <div class="journey-col panel-art">
+          <div class="jc-head"><div><div class="jc-num">Stage 01</div><div class="jc-stage">Discover</div></div><img class="jc-icon" src="https://img.icons8.com/fluency/48/qr-code.png" alt="discover"></div>
+          <div class="jc-row"><span class="k">Touchpoint</span>Xiaohongshu post · QR in a gallery brochure</div>
+          <div class="jc-row"><span class="k">Pain</span>"Will this lag my phone?"</div>
+          <div class="jc-row"><span class="k">Opportunity</span>Open with a 4s landing orb before any mic prompt.</div>
+        </div>
+        <div class="journey-col panel-art">
+          <div class="jc-head"><div><div class="jc-num">Stage 02</div><div class="jc-stage">Awaken</div></div><img class="jc-icon" src="https://img.icons8.com/fluency/48/microphone.png" alt="awaken"></div>
+          <div class="jc-row"><span class="k">Touchpoint</span>Landing page · mic permission modal</div>
+          <div class="jc-row"><span class="k">Pain</span>Mic prompt feels invasive.</div>
+          <div class="jc-row"><span class="k">Opportunity</span>Offer a <em>Skip → ambient music</em> branch for shy users.</div>
+        </div>
+        <div class="journey-col panel-art">
+          <div class="jc-head"><div><div class="jc-num">Stage 03</div><div class="jc-stage">Explore</div></div><img class="jc-icon" src="https://img.icons8.com/fluency/48/open-book--v2.png" alt="explore"></div>
+          <div class="jc-row"><span class="k">Touchpoint</span>Mode 1 (Breath) · teleprompter</div>
+          <div class="jc-row"><span class="k">Pain</span>"What am I supposed to do?"</div>
+          <div class="jc-row"><span class="k">Opportunity</span>Suggest a curated poem + highlight lines as user reads.</div>
+        </div>
+        <div class="journey-col panel-art">
+          <div class="jc-head"><div><div class="jc-num">Stage 04</div><div class="jc-stage">Express</div></div><img class="jc-icon" src="https://img.icons8.com/fluency/48/musical-notes.png" alt="express"></div>
+          <div class="jc-row"><span class="k">Touchpoint</span>Modes 2–4 · BPM · crescendo</div>
+          <div class="jc-row"><span class="k">Pain</span>Hard to know when one mode "climaxes".</div>
+          <div class="jc-row"><span class="k">Opportunity</span>Subtle UI hints (BPM bar, energy ring) nudge progression.</div>
+        </div>
+        <div class="journey-col panel-art">
+          <div class="jc-head"><div><div class="jc-num">Stage 05</div><div class="jc-stage">Share</div></div><img class="jc-icon" src="https://img.icons8.com/fluency/48/share.png" alt="share"></div>
+          <div class="jc-row"><span class="k">Touchpoint</span>GIF export · Xiaohongshu / IG</div>
+          <div class="jc-row"><span class="k">Pain</span>Users want an artifact, not a screen recording.</div>
+          <div class="jc-row"><span class="k">Opportunity</span>1-click Record GIF → 720×405 keepsake with watermark.</div>
+        </div>
+      </div>
+
+      <div class="emotion-bar">
+        <svg viewBox="0 0 1000 80" preserveAspectRatio="none">
+          <line x1="0" y1="40" x2="1000" y2="40" stroke="#D4D0C8" stroke-width="0.5" stroke-dasharray="4 4"/>
+          <path d="M 0 60 C 120 62, 180 50, 250 46 S 380 26, 500 20 S 680 10, 800 14 S 920 32, 1000 28" fill="none" stroke="#E63B2E" stroke-width="2"/>
+          <circle cx="0" cy="60" r="4" fill="#E63B2E"/>
+          <circle cx="250" cy="46" r="4" fill="#E63B2E"/>
+          <circle cx="500" cy="20" r="4" fill="#E63B2E"/>
+          <circle cx="800" cy="14" r="4" fill="#C8A850"/>
+          <circle cx="1000" cy="28" r="4" fill="#C8A850"/>
+          <text x="0" y="76" fill="#AAA" font-family="Space Mono, monospace" font-size="8" letter-spacing="1">CURIOUS</text>
+          <text x="460" y="76" fill="#AAA" font-family="Space Mono, monospace" font-size="8" letter-spacing="1">IMMERSED</text>
+          <text x="940" y="76" fill="#AAA" font-family="Space Mono, monospace" font-size="8" letter-spacing="1">PROUD</text>
+        </svg>
+      </div>
+
+      <div class="strategy-row">
+        <div class="strategy-cell" data-step="priority 01">
+          <div class="sc-head"><img src="https://img.icons8.com/fluency/48/unlock.png" alt="unlock"><div class="sc-num">①</div></div>
+          <div class="sc-title">Reduce onboarding friction</div>
+          <div class="sc-desc">Pre-render the landing orb before requesting microphone; provide a "skip" branch for users not ready to vocalize.</div>
+          <div class="sc-impact">Impact · +22% first-read completion</div>
+        </div>
+        <div class="strategy-cell" data-step="priority 02">
+          <div class="sc-head"><img src="https://img.icons8.com/fluency/48/musical-notes.png" alt="notes"><div class="sc-num">②</div></div>
+          <div class="sc-title">Reward reading aloud</div>
+          <div class="sc-desc">Line-by-line highlighting and loudness-driven auto-advance reframe the experience as <em>performance</em>, not homework.</div>
+          <div class="sc-impact">Impact · +3.8x session dwell</div>
+        </div>
+        <div class="strategy-cell" data-step="priority 03">
+          <div class="sc-head"><img src="https://img.icons8.com/fluency/48/instagram-new.png" alt="share"><div class="sc-num">③</div></div>
+          <div class="sc-title">Enable aesthetic sharing</div>
+          <div class="sc-desc">1-click GIF export converts a 6-second moment into a portable keepsake — fueling the social-share loop revealed in research.</div>
+          <div class="sc-impact">Impact · 78% export intent</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <div class="page-num">05 / 10</div>
+</section>
+
+<!-- ===== PAGE 6 — COMPETITIVE ===== -->
+<section class="page page--dark" id="p6">
+  <div class="page-inner">
+    <div class="section-num">06 — Competitive</div>
+    <h2 class="section-title" style="color:var(--c-cream)">The gap in <em>the market.</em></h2>
+    <div class="section-rule"></div>
+    <p class="section-desc">I studied four reference works across music-toys, installation art, and wellness apps. None of them do what people told me they wanted: <em>read a poem, see it come alive, take something home</em>.</p>
+
+    <div class="comp-grid">
+      <div class="comp-card panel-art panel-art--dark">
+        <div class="cc-head">
+          <div><div class="cc-name">Patatap</div><div class="cc-type">Web Toy · 2012 · Jono Brandel</div></div>
+          <div class="cc-logo">P</div>
+        </div>
+        <div class="cc-media"><img src="https://images.pexels.com/photos/8132521/pexels-photo-8132521.jpeg?cs=srgb&dl=pexels-anna-pou-8132521.jpg&fm=jpg" alt="audio toy reference"></div>
+        <div class="cc-row"><span class="k p">Strength</span><span>Instant joy, low cognitive load, iconic color language.</span></div>
+        <div class="cc-row"><span class="k n">Weakness</span><span>No narrative; no input — just keypresses trigger preset loops.</span></div>
+        <div class="cc-row"><span class="k g">Gap</span><span>Generative from <em>your own voice</em> + literary depth.</span></div>
+      </div>
+
+      <div class="comp-card panel-art panel-art--dark">
+        <div class="cc-head">
+          <div><div class="cc-name">Björk · Biophilia</div><div class="cc-type">iPad Album · 2011 · Björk + Scott Snibbe</div></div>
+          <div class="cc-logo">B</div>
+        </div>
+        <div class="cc-media"><img src="https://images.pexels.com/photos/13235224/pexels-photo-13235224.jpeg?cs=srgb&dl=pexels-amar-13235224.jpg&fm=jpg" alt="studio microphone with blue backdrop"></div>
+        <div class="cc-row"><span class="k p">Strength</span><span>Rich music+visual coupling; scientific themes; curated albums.</span></div>
+        <div class="cc-row"><span class="k n">Weakness</span><span>iPad-locked, paid, 2011-era UI — most people under 25 have never heard of it.</span></div>
+        <div class="cc-row"><span class="k g">Gap</span><span>Free · browser-native · mobile-first · shareable GIF.</span></div>
+      </div>
+
+      <div class="comp-card panel-art panel-art--dark">
+        <div class="cc-head">
+          <div><div class="cc-name">teamLab · Resonating</div><div class="cc-type">Installation · 2015–now · teamLab</div></div>
+          <div class="cc-logo">T</div>
+        </div>
+        <div class="cc-media"><img src="https://images.pexels.com/photos/36126282/pexels-photo-36126282.jpeg?cs=srgb&dl=pexels-adrien-olichon-1257089-36126282.jpg&fm=jpg" alt="museum installation reference"></div>
+        <div class="cc-row"><span class="k p">Strength</span><span>Best-in-class aesthetic; full-body immersion; strong cultural cachet.</span></div>
+        <div class="cc-row"><span class="k n">Weakness</span><span>Requires physical venue, expensive tickets, no take-home.</span></div>
+        <div class="cc-row"><span class="k g">Gap</span><span>Personal-scale, solo-voice, exportable artifact at home.</span></div>
+      </div>
+
+      <div class="comp-card panel-art panel-art--dark">
+        <div class="cc-head">
+          <div><div class="cc-name">Respiro</div><div class="cc-type">iOS App · 2022 · Calm-adjacent</div></div>
+          <div class="cc-logo">R</div>
+        </div>
+        <div class="cc-media"><img src="https://images.pexels.com/photos/31645660/pexels-photo-31645660.jpeg?cs=srgb&dl=pexels-leticia-alvares-1805702-31645660.jpg&fm=jpg" alt="quiet reading and wellness scene"></div>
+        <div class="cc-row"><span class="k p">Strength</span><span>Breath-driven visuals; wellness positioning; polished motion.</span></div>
+        <div class="cc-row"><span class="k n">Weakness</span><span>Meditation framing; no literature; closed app store distribution.</span></div>
+        <div class="cc-row"><span class="k g">Gap</span><span>Poetry-driven reading ritual, not guided breathing.</span></div>
+      </div>
+    </div>
+
+    <div class="comp-insight-bar">
+      <div class="ci-mark">※</div>
+      <div class="ci-text">"No existing product bridges <em>literature</em>, <em>generative visuals</em>, and a <em>shareable artifact</em> in one place — that's the gap SoundPoetry sits in."</div>
+    </div>
+  </div>
+  <div class="page-num">06 / 10</div>
+</section>
+
+<!-- ===== PAGE 7 — IA + DESIGN SYSTEM ===== -->
+<section class="page" id="p7">
+  <div class="page-inner">
+    <div class="section-num">07 — IA &amp; Design System</div>
+    <h2 class="section-title">Interaction architecture<br/>+ <em>Design tokens.</em></h2>
+    <div class="section-rule"></div>
+    <p class="section-desc">A deliberately shallow IA — you should never feel lost between modes — paired with a three-color violet palette and one motion rule I kept coming back to: <em>bass expands, treble elevates, beat erupts.</em></p>
+
+    <div class="ia-layout">
+      <div class="ia-tree-col">
+        <div class="ia-tree">
+          <div class="ia-node">Landing<span class="tag">Orb + CTA</span></div>
+          <div class="ia-node" style="margin-left:24px">Mic Permission Modal<span class="tag">+ Skip branch</span></div>
+          <div class="ia-node" style="margin-left:24px">Canvas · Mode Router<span class="tag">Core scene</span></div>
+          <div class="ia-branch">
+            <div class="ia-leaf"><strong>Mode 1</strong><span>Breath of Words</span></div>
+            <div class="ia-leaf"><strong>Mode 2</strong><span>Sound Galaxy</span></div>
+            <div class="ia-leaf"><strong>Mode 3</strong><span>Ink in Water</span></div>
+            <div class="ia-leaf"><strong>Mode 4</strong><span>Resonance Field</span></div>
+          </div>
+          <div class="ia-aux">
+            <div class="ia-node">Teleprompter<span class="tag">poem selector</span></div>
+            <div class="ia-node">GIF Export<span class="tag">6s · 15fps</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ia-divider"></div>
+
+      <div class="ds-col">
+        <div>
+          <div class="ds-label">Color Tokens · Ink &amp; Frequency</div>
+          <div class="ds-swatches" style="margin-top:10px">
+            <div class="swatch" data-hex="#0C0C0C" style="background:#0C0C0C"></div>
+            <div class="swatch" data-hex="#E63B2E" style="background:#E63B2E"></div>
+            <div class="swatch" data-hex="#C8A850" style="background:#C8A850"></div>
+            <div class="swatch" data-hex="#F2EDE4" style="background:#F2EDE4"></div>
+            <div class="swatch" data-hex="#FAF8F4" style="background:#FAF8F4"></div>
+          </div>
+        </div>
+        <div>
+          <div class="ds-label">Type Scale</div>
+          <div class="type-scale">
+            <div class="type-row"><span class="type-sample" style="font-family:var(--f-display); font-size:28px; font-weight:400">Display · Playfair</span><span class="type-spec">128 / 52 / 24 · Wt 400–900</span></div>
+            <div class="type-row"><span class="type-sample" style="font-family:var(--f-body); font-size:17px; font-weight:400">Body · EB Garamond</span><span class="type-spec">18 / 15 / 13 · 400–600</span></div>
+            <div class="type-row"><span class="type-sample" style="font-family:var(--f-mono); font-size:12px; font-weight:400; letter-spacing:2px">Mono · Space Mono</span><span class="type-spec">12 / 11 / 9 · Labels</span></div>
+            <div class="type-row"><span class="type-sample" style="font-family:var(--f-zh); font-size:16px; letter-spacing:3px">繁體 · Noto Serif TC</span><span class="type-spec">22 / 16 / 13 · Chinese</span></div>
+          </div>
+        </div>
+        <div>
+          <div class="ds-label">Motion Principles</div>
+          <div class="motion-row" style="margin-top:10px">
+            <div class="motion-cell">
+              <div class="mc-k">Bass</div>
+              <div class="mc-v">Expansion</div>
+              <div class="mc-d">Particles swell outward; scale 1 → 1.15.</div>
+            </div>
+            <div class="motion-cell">
+              <div class="mc-k">Treble</div>
+              <div class="mc-v">Elevation</div>
+              <div class="mc-d">Bloom strength +40%; Y-axis lift of nodes.</div>
+            </div>
+            <div class="motion-cell">
+              <div class="mc-k">Beat</div>
+              <div class="mc-v">Eruption</div>
+              <div class="mc-d">150 burst particles + flash + nova wavefront.</div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="ds-label">System Modules</div>
+          <div class="ds-fragments">
+            <div class="ds-frag">
+              <div class="ds-frag-k">Input Layer</div>
+              <div class="ds-frag-v">Mic gate, fallback branch, and gain normalization pipeline.</div>
+              <div class="ds-mini-bars"><i></i><i></i><i></i></div>
+              <span>voice routing</span>
+            </div>
+            <div class="ds-frag">
+              <div class="ds-frag-k">Semantic Layer</div>
+              <div class="ds-frag-v">Poem line cursor, teleprompter pacing, and mode-aware copy hints.</div>
+              <div class="ds-mini-bars"><i></i><i></i><i></i></div>
+              <span>reading flow</span>
+            </div>
+            <div class="ds-frag">
+              <div class="ds-frag-k">Visual Layer</div>
+              <div class="ds-frag-v">Particle engine, bloom profile, and energy-mapped motion presets.</div>
+              <div class="ds-mini-bars"><i></i><i></i><i></i></div>
+              <span>render choreography</span>
+            </div>
+            <div class="ds-frag">
+              <div class="ds-frag-k">Output Layer</div>
+              <div class="ds-frag-v">6s GIF recorder, frame budget monitor, and social-share framing.</div>
+              <div class="ds-mini-bars"><i></i><i></i><i></i></div>
+              <span>artifact export</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="page-num">07 / 10</div>
+</section>
+
+<!-- ===== PAGE 8 — SHOWCASE ===== -->
+<section class="page page--dark" id="p8">
+  <div class="page-inner">
+    <div class="section-num">08 — Showcase</div>
+    <h2 class="section-title" style="color:var(--c-cream)">The four states <em>of sound.</em></h2>
+    <div class="section-rule"></div>
+    <p class="section-desc">Each mode reacts to a different band of the audio spectrum, wrapped in a distinct visual language — particle swarm, galactic drift, fluid ink, and architectural field.</p>
+
+    <div class="showcase-grid">
+      <div class="showcase-cell">
+        <img src="./screenshots/03_mode1_breath_of_words.png" alt="Breath of Words"/>
+        <div class="showcase-index">Mode 01</div>
+        <div class="showcase-caption">
+          <div class="sc-title">Breath of Words<span class="zh">詞之呼吸</span></div>
+          <div class="sc-desc">6,144 pts · Mid-band<br/>Beat → 150 burst radials</div>
+        </div>
+      </div>
+      <div class="showcase-cell">
+        <img src="./screenshots/04_mode2_sound_galaxy.png" alt="Sound Galaxy"/>
+        <div class="showcase-index">Mode 02</div>
+        <div class="showcase-caption">
+          <div class="sc-title">Sound Galaxy<span class="zh">聲之星雲</span></div>
+          <div class="sc-desc">5 spiral arms · 3.5k stars<br/>Core → nova wavefront</div>
+        </div>
+      </div>
+      <div class="showcase-cell">
+        <img src="./screenshots/05_mode3_ink_in_water.png" alt="Ink in Water"/>
+        <div class="showcase-index">Mode 03</div>
+        <div class="showcase-caption">
+          <div class="sc-title">Ink in Water<span class="zh">墨入水</span></div>
+          <div class="sc-desc">12 drifting blobs · 3 tints<br/>Bass → fission/reunion</div>
+        </div>
+      </div>
+      <div class="showcase-cell">
+        <img src="./screenshots/06_mode4_resonance_field.png" alt="Resonance Field"/>
+        <div class="showcase-index">Mode 04</div>
+        <div class="showcase-caption">
+          <div class="sc-title">Resonance Field<span class="zh">共振場</span></div>
+          <div class="sc-desc">45×45 node grid · 2,025 pts<br/>Multi-point impulses on beat</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="page-num">08 / 10</div>
+</section>
+
+<!-- ===== PAGE 9 — RESULTS ===== -->
+<section class="page" id="p9">
+  <div class="page-inner">
+    <div class="section-num">09 — Results</div>
+    <h2 class="section-title">Craft, then <em>feedback.</em></h2>
+    <div class="section-rule"></div>
+    <p class="section-desc">Tested with 9 peers over two weeks. Technical targets were met, but the real surprise was session length — people stayed 3–4× longer than on comparable tools, and kept coming back unprompted.</p>
+
+    <div class="results-top">
+      <div class="outcome-card panel-art">
+        <div class="outcome-head"><img class="oc-icon" src="https://img.icons8.com/fluency/48/artificial-intelligence.png" alt="render performance"></div>
+        <div class="oc-num">60fps</div>
+        <div class="oc-label">Render target</div>
+        <div class="oc-desc">Sustained on M2 Air &amp; Pixel 8 — despite 6,144 live particles + 2× shader passes.</div>
+      </div>
+      <div class="outcome-card panel-art">
+        <div class="outcome-head"><img class="oc-icon" src="https://img.icons8.com/fluency/48/feather.png" alt="lightweight payload"></div>
+        <div class="oc-num">100KB</div>
+        <div class="oc-label">Single-file payload</div>
+        <div class="oc-desc">Zero bundler, zero npm, zero backend. Host it anywhere; it loads in &lt; 2s on 4G.</div>
+      </div>
+      <div class="outcome-card panel-art">
+        <div class="outcome-head"><img class="oc-icon" src="https://img.icons8.com/fluency/48/time.png" alt="dwell uplift"></div>
+        <div class="oc-num">3.8×</div>
+        <div class="oc-label">Dwell uplift</div>
+        <div class="oc-desc">Median session 4m 12s vs 1m 08s on Patatap in matched playtest.</div>
+      </div>
+      <div class="outcome-card panel-art">
+        <div class="outcome-head"><img class="oc-icon" src="https://img.icons8.com/fluency/48/download.png" alt="export intent"></div>
+        <div class="oc-num">78%</div>
+        <div class="oc-label">Export intent</div>
+        <div class="oc-desc">of testers exported a GIF on their first session — confirming the shareable-artifact hypothesis from the survey.</div>
+      </div>
+    </div>
+
+    <div class="results-mid">
+      <div class="quote-cell">
+        <div class="qb-text">I hadn't read Dickinson out loud since middle school. My roommate thought I was on a video call — then she saw the particles on my screen and wanted to try it herself.</div>
+        <div class="qb-who">Xiaoyu · 21 · Chinese Literature</div>
+      </div>
+      <div class="quote-cell">
+        <div class="qb-text">Finally, an audio-reactive demo I'd actually cite in my thesis references. The color palette is restrained in a way that most flashy demos aren't.</div>
+        <div class="qb-who">Haoran · 22 · Digital Media Tech</div>
+      </div>
+      <div class="quote-cell">
+        <div class="qb-text">I sent the GIF to my mom. She asked me what poem it was. We hadn't talked about literature in years.</div>
+        <div class="qb-who">Zhou Ting · 23 · Psychology MA</div>
+      </div>
+    </div>
+
+    <div class="artifact-ribbon">
+      <div class="artifact-card" data-label="landing ritual"><img src="./screenshots/01_landing.png" alt="landing ritual"></div>
+      <div class="artifact-card" data-label="breath output"><img src="./screenshots/03_mode1_breath_of_words.png" alt="breath output"></div>
+      <div class="artifact-card" data-label="galaxy output"><img src="./screenshots/04_mode2_sound_galaxy.png" alt="galaxy output"></div>
+      <div class="artifact-card" data-label="resonance output"><img src="./screenshots/06_mode4_resonance_field.png" alt="resonance output"></div>
+    </div>
+
+    <div class="results-bot">
+      <div class="selfassess worked">
+        <div class="sa-head"><div class="sa-icon"><img src="https://img.icons8.com/fluency/48/checkmark.png" alt="✓" style="width:18px;height:18px;object-fit:contain;vertical-align:middle;"></div><div class="sa-title">What Worked</div></div>
+        <div class="sa-body">Making "reading aloud" the core interaction kept every visual decision honest — if it didn't respond to voice, it didn't belong. The 8-poem curated list also helped — too many choices and people just freeze.</div>
+      </div>
+      <div class="selfassess change">
+        <div class="sa-head"><div class="sa-icon"><img src="https://img.icons8.com/fluency/48/refresh.png" alt="↻" style="width:18px;height:18px;object-fit:contain;vertical-align:middle;"></div><div class="sa-title">What I'd Change</div></div>
+        <div class="sa-body">Mode 4 (Resonance Field) confused people at first — 2 out of 9 testers thought it was broken during the first 5 seconds. Needs a clearer onboarding hint or a brief animation showing what to expect.</div>
+      </div>
+      <div class="selfassess learn">
+        <div class="sa-head"><div class="sa-icon"><img src="https://img.icons8.com/fluency/48/idea.png" alt="✶" style="width:18px;height:18px;object-fit:contain;vertical-align:middle;"></div><div class="sa-title">What I Learned</div></div>
+        <div class="sa-body">Putting everything in one HTML file turned out to be a huge advantage — anyone can open it in 2 seconds, no npm, no setup. For a portfolio piece, that accessibility matters a lot.</div>
+      </div>
+    </div>
+  </div>
+  <div class="page-num">09 / 10</div>
+</section>
+
+<!-- ===== PAGE 10 — FUTURE + CONTACT ===== -->
+<section class="page page--dark" id="p10">
+  <div class="page-inner">
+    <div class="section-num">10 — Future</div>
+    <h2 class="section-title" style="color:var(--c-cream)"><em>Next steps.</em></h2>
+    <div class="section-rule"></div>
+    <p class="section-desc">Three directions I want to pursue — a near-term WebXR port, a physical gallery installation, and eventually an AI co-writing mode. Each builds on the particle engine and audio pipeline already in place.</p>
+
+    <div class="future-layout">
+      <div class="roadmap-grid">
+        <div class="roadmap-card panel-art panel-art--dark">
+          <div class="rc-phase">Short-term</div>
+          <div class="rc-period">Q2 · 2026</div>
+          <div class="rc-title">WebXR + Multiplayer</div>
+          <ul>
+            <li>Meta Quest build via WebXR — orb becomes hand-held.</li>
+            <li>Live multiplayer rooms: two readers, one shared particle field.</li>
+            <li>Chromecast mirror so reading aloud fills a TV canvas.</li>
+          </ul>
+        </div>
+        <div class="roadmap-card panel-art panel-art--dark">
+          <img class="rc-icon" src="https://img.icons8.com/fluency/48/museum.png" alt="">
+          <div class="rc-phase">Mid-term</div>
+          <div class="rc-period">Q4 · 2026</div>
+          <div class="rc-title">Museum Installation</div>
+          <ul>
+            <li>Partner with a HK / SG art space for a physical premiere.</li>
+            <li>Microphone array + projection mapping onto gallery walls.</li>
+            <li>Commissioned poem set from Sinophone + Anglophone poets.</li>
+          </ul>
+        </div>
+        <div class="roadmap-card panel-art panel-art--dark">
+          <img class="rc-icon" src="https://img.icons8.com/fluency/48/galaxy.png" alt="">
+          <div class="rc-phase">Long-term</div>
+          <div class="rc-period">2027+</div>
+          <div class="rc-title">AI Co-Poet Mode</div>
+          <ul>
+            <li>Real-time poem generation via Claude API — tuned to voice mood.</li>
+            <li>User speaks 3 words → model drafts a stanza → visuals render live.</li>
+            <li>Open-source the pipeline as a teaching tool for art schools.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="future-vision">
+        <div class="future-vision-card">
+          <img src="https://images.pexels.com/photos/6499007/pexels-photo-6499007.jpeg?cs=srgb&dl=pexels-tima-miroshnichenko-6499007.jpg&fm=jpg" alt="vr concept">
+          <div><strong>WebXR</strong><span>Turn the voice-orb into a spatial object you can hold and move around in immersive space.</span></div>
+        </div>
+        <div class="future-vision-card">
+          <img src="https://images.pexels.com/photos/35061825/pexels-photo-35061825.jpeg?cs=srgb&dl=pexels-jesus-rivera-2156773390-35061825.jpg&fm=jpg" alt="museum concept">
+          <div><strong>Installation</strong><span>Scale the interaction from a private phone ritual into a gallery-sized projection environment.</span></div>
+        </div>
+        <div class="future-vision-card">
+          <img src="https://images.pexels.com/photos/956981/milky-way-starry-sky-night-sky-star-956981.jpeg?cs=srgb&dl=pexels-felix-mittermeier-956981.jpg&fm=jpg" alt="ai poet concept">
+          <div><strong>AI Co-Poet</strong><span>Let the system draft new lines in response to your tone, then visualize them in real time.</span></div>
+        </div>
+      </div>
+
+      <div class="contact-footer">
+        <div>
+          <h3 class="contact-title">Let's make <em>poetry</em><br/>that listens.</h3>
+          <p class="contact-lede">I'm applying to master's programs in multimedia and entertainment design in Hong Kong &amp; Singapore. If this work resonates with your program, studio, or gallery — I'd genuinely love to talk.</p>
+        </div>
+        <div class="contact-info">
+          <div class="contact-row"><span class="ck">Designer</span><span>Joey Zhao</span></div>
+          <div class="contact-row"><span class="ck">Portfolio</span><span>joeyzhao.design</span></div>
+          <div class="contact-row"><span class="ck">Email</span><span>hello@joeyzhao.design</span></div>
+          <div class="contact-row"><span class="ck">Xiaohongshu</span><span>Joey的生活美學</span></div>
+          <div class="contact-row"><span class="ck">Demo</span><span><a href="./sound_poetry.html" style="color:var(--c-vermillion); text-decoration:underline">sound_poetry.html ↗</a></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="page-num">10 / 10</div>
+</section>
+
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+</body>
+</html>
