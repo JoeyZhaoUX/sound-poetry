@@ -470,6 +470,14 @@ canvas { display: block; }
   transition: all 0.2s ease;
 }
 .tp-btn:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.4); color: #fff; }
+.tp-btn.tp-close {
+  border-color: rgba(255, 255, 255, 0.32);
+  color: rgba(255, 255, 255, 0.85);
+}
+.tp-btn.tp-close:hover {
+  background: rgba(232, 121, 249, 0.18);
+  border-color: rgba(232, 121, 249, 0.8);
+}
 .tp-idx {
   font-family: var(--f-mono);
   font-size: 9px; letter-spacing: 1px;
@@ -526,6 +534,36 @@ canvas { display: block; }
   font-family: var(--f-mono);
   font-size: 9px; letter-spacing: 2px; text-transform: uppercase;
   color: rgba(245, 243, 255, 0.35);
+}
+.tp-reopen {
+  position: fixed;
+  top: 44px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-14px);
+  z-index: 18;
+  padding: 8px 16px;
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 999px;
+  color: rgba(255, 255, 255, 0.75);
+  font-family: var(--f-mono);
+  font-size: 10px;
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
+  cursor: pointer;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+.tp-reopen.visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+.tp-reopen:hover {
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.12);
 }
 
 /* ─── MODE BAR (bottom) ─────────────────────────────────── */
@@ -784,6 +822,7 @@ canvas { display: block; }
 /* ─── RESPONSIVE ────────────────────────────────────────── */
 @media (max-width: 1024px) {
   .teleprompter { width: 90vw; top: 30px; }
+  .tp-reopen { top: 30px; }
   .mode-indicator { top: 30px; left: 30px; }
   .bpm-display { left: 30px; margin-top: 78px; }
   .audio-stats { top: 30px; right: 30px; }
@@ -897,6 +936,7 @@ canvas { display: block; }
       <button class="tp-btn" id="tpPrev">‹</button>
       <span class="tp-idx" id="tpIdx">1/1</span>
       <button class="tp-btn" id="tpNext">›</button>
+      <button class="tp-btn tp-close" id="tpClose" aria-label="Hide poem panel" title="Hide poem panel">×</button>
     </div>
   </div>
   <div class="tp-poem" id="tpPoem"></div>
@@ -906,6 +946,7 @@ canvas { display: block; }
     <span class="tp-hint">Read aloud · Lines advance with your voice</span>
   </div>
 </div>
+<button class="tp-reopen" id="tpReopen" aria-label="Show poem panel">Show Poem</button>
 
 <!-- MODE BAR -->
 <div class="mode-bar" id="modeBar">
@@ -1961,6 +2002,7 @@ const POEMS = {
 // ═══════════════════════════════════════════════════════════
 const teleprompter = (() => {
   const el = document.getElementById('teleprompter');
+  const reopenEl = document.getElementById('tpReopen');
   const titleEl = document.getElementById('tpTitle');
   const authorEl = document.getElementById('tpAuthor');
   const poemEl = document.getElementById('tpPoem');
@@ -1972,6 +2014,7 @@ const teleprompter = (() => {
   let lineIndex = 0;
   let lineElements = [];
   let lastAutoAdvance = 0;
+  let isVisible = false;
 
   function render() {
     const poems = POEMS[currentMode];
@@ -2022,8 +2065,20 @@ const teleprompter = (() => {
       nextPoem();
     }
   }
-  function show() { el.classList.add('visible'); }
-  function hide() { el.classList.remove('visible'); }
+  function show() {
+    isVisible = true;
+    el.classList.add('visible');
+    reopenEl.classList.remove('visible');
+  }
+  function hide() {
+    isVisible = false;
+    el.classList.remove('visible');
+    reopenEl.classList.add('visible');
+  }
+  function toggle() {
+    if (isVisible) hide();
+    else show();
+  }
 
   function tick(audio, now) {
     if (audio.loudnessStreak > 50 && now - lastAutoAdvance > 2400) {
@@ -2034,12 +2089,18 @@ const teleprompter = (() => {
 
   document.getElementById('tpNext').addEventListener('click', nextPoem);
   document.getElementById('tpPrev').addEventListener('click', prevPoem);
+  document.getElementById('tpClose').addEventListener('click', hide);
+  reopenEl.addEventListener('click', show);
   document.getElementById('tpAdvance').addEventListener('click', () => {
     nextLine();
     lastAutoAdvance = performance.now();
   });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') hide();
+    if (e.key.toLowerCase() === 'p') toggle();
+  });
 
-  return { setMode, show, hide, tick, nextLine };
+  return { setMode, show, hide, toggle, tick, nextLine };
 })();
 
 // ═══════════════════════════════════════════════════════════
